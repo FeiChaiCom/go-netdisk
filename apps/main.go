@@ -3,6 +3,7 @@ package apps
 import (
 	"github.com/gaomugong/go-netdisk/apps/monitor"
 	"github.com/gaomugong/go-netdisk/apps/user"
+	cfg "github.com/gaomugong/go-netdisk/config"
 	"github.com/gin-gonic/gin"
 )
 
@@ -14,12 +15,16 @@ var registers = []Register{
 }
 
 func InitApiRouter() *gin.Engine {
-	r := gin.Default()
-	apiGroup := r.Group("/api")
 
+	engine := gin.New()
+	engine.Use(gin.Recovery())
+	engine.Use(cfg.ApiLogger)
+
+	//engine := gin.Default()
+	apiGroup := engine.Group("/api")
 	for _, register := range registers {
 		register(apiGroup)
 	}
 
-	return r
+	return engine
 }

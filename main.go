@@ -3,19 +3,23 @@ package main
 import (
 	"fmt"
 	"github.com/gaomugong/go-netdisk/apps"
+	cfg "github.com/gaomugong/go-netdisk/config"
 	"github.com/gin-gonic/gin"
+	"io"
+	"log"
 	"net/http"
+	"os"
 )
 
 func main() {
-	port := 5000
-	fmt.Println("go-netdisk begin server at port: ", port)
+	log.Println("go-netdisk begin server at port: ", cfg.Port)
 
 	// Init url router for apis
 	router := apps.InitApiRouter()
 
+	router.Use(cfg.ApiLogger)
 	// Load index html
-	router.LoadHTMLGlob("templates/*")
+	router.LoadHTMLGlob(cfg.TemplateDirPattern)
 	router.GET("", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "index.html", gin.H{
 			"title": "feichai",
@@ -23,9 +27,19 @@ func main() {
 	})
 
 	// Serve static files
-	router.Static("/static", "./statics")
-	//router.StaticFS("/more_static", http.Dir("my_file_system"))
-	router.StaticFile("/favicon.ico", "./statics/favicon.ico")
+	router.Static(cfg.StaticURL, cfg.StaticDir)
 
-	_ = router.Run(fmt.Sprintf("127.0.0.1:%d", port))
+	// Serve media files
+	// router.StaticFS("/media", http.Dir("./media"))
+
+	router.StaticFile("/favicon.ico", fmt.Sprintf("%s/favicon.ico", cfg.StaticDir))
+
+	_ = router.Run(fmt.Sprintf(":%d", cfg.Port))
+}
+
+// Init gin log to file and stdout
+func init() {
+	log.Println("init gin log to gin.log and stdout...")
+	f, _ := os.Create("gin.log")
+	gin.DefaultWriter = io.MultiWriter(f, os.Stdout)
 }
