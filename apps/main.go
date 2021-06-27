@@ -1,11 +1,13 @@
 package apps
 
 import (
+	"fmt"
 	"github.com/gaomugong/go-netdisk/apps/demo"
 	"github.com/gaomugong/go-netdisk/apps/monitor"
 	"github.com/gaomugong/go-netdisk/common"
 	cfg "github.com/gaomugong/go-netdisk/config"
 	"github.com/gin-gonic/gin"
+	"net/http"
 )
 
 type Register func(rg *gin.RouterGroup)
@@ -33,4 +35,22 @@ func InitAPIRouter() *gin.Engine {
 	}
 
 	return engine
+}
+
+func InitTemplateRouter(engine *gin.Engine) {
+	// Load index html
+	engine.LoadHTMLGlob(cfg.TemplateDirPattern)
+	engine.GET("", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "index.html", gin.H{
+			"title": "feichai",
+		})
+	})
+
+	// Serve static files
+	engine.Static(cfg.StaticURL, cfg.StaticDir)
+	engine.StaticFile("/favicon.ico", fmt.Sprintf("%s/favicon.ico", cfg.StaticDir))
+
+	// Serve media files
+	engine.StaticFS(cfg.MediaURL, http.Dir(cfg.MediaDir))
+
 }
