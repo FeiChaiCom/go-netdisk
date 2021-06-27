@@ -15,17 +15,18 @@ var registers = []Register{
 	demo.RegisterTestGroup,
 }
 
-func InitApiRouter() *gin.Engine {
-
+func InitAPIRouter() *gin.Engine {
+	// engine := gin.Default()
 	engine := gin.New()
-	engine.Use(gin.Recovery())
+	// engine.Use(gin.Logger())
 	engine.Use(cfg.ApiLogger)
+	engine.Use(gin.Recovery())
 	engine.Use(common.LoginRequiredMiddleware())
 
 	// Set a lower memory limit for multipart forms (default 32M)
 	engine.MaxMultipartMemory = 8 << 20 // 8MiB
 
-	//engine := gin.Default()
+	// engine := gin.Default()
 	apiGroup := engine.Group("/api")
 	for _, register := range registers {
 		register(apiGroup)
