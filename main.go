@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/gaomugong/go-netdisk/apps"
 	cfg "github.com/gaomugong/go-netdisk/config"
@@ -22,6 +23,8 @@ func main() {
 
 	// Init url router for apis
 	router := apps.InitAPIRouter()
+
+	// Init template and static files serve router
 	apps.InitTemplateRouter(router)
 
 	// _ = router.Run(fmt.Sprintf(":%d", cfg.Port))
@@ -36,7 +39,7 @@ func main() {
 	// Initializing the server in a goroutine so that
 	// it won't block the graceful shutdown handling below
 	go func() {
-		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			log.Fatalf("listen: %s\n", err)
 		}
 	}()
