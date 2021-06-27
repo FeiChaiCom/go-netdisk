@@ -42,4 +42,11 @@ func init() {
 	log.Println("init gin log to gin.log and stdout...")
 	f, _ := os.Create("gin.log")
 	gin.DefaultWriter = io.MultiWriter(f, os.Stdout)
+
+	log.Println("init file upload dir...")
+	if _, err := os.Stat(cfg.MediaDir); os.IsNotExist(err) {
+		if err = os.Mkdir(cfg.MediaDir, 0755); err != nil {
+			panic(err)
+		}
+	}
 }

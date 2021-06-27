@@ -1,7 +1,9 @@
-package user
+package demo
 
 import (
 	"encoding/json"
+	"fmt"
+	cfg "github.com/gaomugong/go-netdisk/config"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator"
 	"log"
@@ -28,13 +30,13 @@ var birthDayValidator validator.Func = func(fl validator.FieldLevel) bool {
 	return false
 }
 
-// curl http://localhost:5000/api/users/test_post/ -X POST -d '{"name": "miya", "age": 11}' -H 'Content-Type: application/json' -vvv
-// curl http://localhost:5000/api/users/test_post/ -X POST -F name=miya -F age=20 -F birthday="2020-11-12 11:11:11"
-// curl http://localhost:5000/api/users/test_post/ -X POST -d '{"name": "miya", "age": 1, "birthday": "2020-01-02T11:12:13.123433"}' -H 'Content-Type: application/json' -vvv
+// curl http://localhost:5000/api/tests/test_post/ -X POST -d '{"name": "miya", "age": 11}' -H 'Content-Type: application/json' -vvv
+// curl http://localhost:5000/api/tests/test_post/ -X POST -F name=miya -F age=20 -F birthday="2020-11-12 11:11:11"
+// curl http://localhost:5000/api/tests/test_post/ -X POST -d '{"name": "miya", "age": 1, "birthday": "2020-01-02T11:12:13.123433"}' -H 'Content-Type: application/json' -vvv
 func testPostUserData(c *gin.Context) {
 	var user User
 
-	// if err := c.ShouldBindJSON(&user); err != nil {
+	// if err := c.ShouldBindJSON(&demo); err != nil {
 	// ShouldBind will guess which content-type is the request and call the specific bind type, eg. bindJSON
 	if err := c.ShouldBind(&user); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -52,7 +54,7 @@ func testPostUserData(c *gin.Context) {
 	})
 }
 
-// curl http://localhost:5000/api/users/test_post_form/ -X POST -F name=miya -F age=12
+// curl http://localhost:5000/api/tests/test_post_form/ -X POST -F name=miya -F age=12
 func testPostUser(c *gin.Context) {
 	name := c.DefaultPostForm("name", "pitou")
 	age := c.PostForm("age")
@@ -65,7 +67,7 @@ func testPostUser(c *gin.Context) {
 	})
 }
 
-// curl http://localhost:5000/api/users/test_get/1/eat/?age=12
+// curl http://localhost:5000/api/tests/test_get/1/eat/?age=12
 func testGetUser(c *gin.Context) {
 	name := c.DefaultQuery("name", "pitou")
 	age := c.Query("age")
@@ -92,7 +94,38 @@ func testGetUser(c *gin.Context) {
 	})
 }
 
-// curl http://localhost:5000/api/users/test_redirect/
+// curl http://localhost:5000/api/tests/test_redirect/
 func testRedirect(c *gin.Context) {
 	c.Redirect(http.StatusMovedPermanently, "http://www.baidu.com")
+}
+
+//curl -X POST http://localhost:5000/api/tests/test_upload/ \
+//  -F "file=@/tmp/log.tar.gz" \
+//  -H "Content-Type: multipart/form-data"
+func testUploadFile(c *gin.Context) {
+	file, _ := c.FormFile("file")
+	log.Println(file.Filename)
+
+	dstFile := strings.Join([]string{cfg.MediaDir, file.Filename}, "/")
+	log.Println(dstFile)
+
+	if err := c.SaveUploadedFile(file, dstFile); err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"result":  true,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"result":  true,
+		"message": fmt.Sprintf("upload <%s> success", file.Filename),
+	})
+}
+
+// curl http://localhost:5000/api/tests/test_get_file/
+func testGetFile(c *gin.Context) {
+	c.FileAttachment(cfg.MediaDir, "log.tar.gz")
+	// curl http://localhost:5000/api/tests/test_get_file/ -o log.tar.gz
+	// c.File(cfg.MediaDir + "/log.tar.gz")
 }
