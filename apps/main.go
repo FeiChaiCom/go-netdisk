@@ -5,6 +5,7 @@ import (
 	"github.com/gaomugong/go-netdisk/apps/demo"
 	"github.com/gaomugong/go-netdisk/apps/matter"
 	"github.com/gaomugong/go-netdisk/apps/monitor"
+	"github.com/gaomugong/go-netdisk/apps/user"
 	"github.com/gaomugong/go-netdisk/common"
 	cfg "github.com/gaomugong/go-netdisk/config"
 	"github.com/gin-gonic/gin"
@@ -14,6 +15,7 @@ import (
 type Register func(rg *gin.RouterGroup)
 
 var registers = []Register{
+	user.RegisterUserGroup,
 	matter.RegisterMatterGroup,
 	monitor.RegisterMonitorGroup,
 	demo.RegisterTestGroup,
