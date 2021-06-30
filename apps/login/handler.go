@@ -1,4 +1,4 @@
-package user
+package login
 
 import (
 	"github.com/gaomugong/go-netdisk/models"
@@ -14,7 +14,7 @@ type userParam struct {
 }
 
 // curl http://localhost:5000/api/account/users/?page=1&pageSize=20&orderCreateTime=DESC
-func PageHandler(c *gin.Context) {
+func UsersHandler(c *gin.Context) {
 	var p userParam
 	if err := c.ShouldBindQuery(&p); err != nil {
 		c.JSON(http.StatusOK, gin.H{
