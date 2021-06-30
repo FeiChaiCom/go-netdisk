@@ -1,4 +1,4 @@
-package user
+package login
 
 import (
 	"github.com/gin-gonic/gin"
@@ -6,8 +6,8 @@ import (
 
 // Add user apis to api group
 func RegisterUserGroup(rg *gin.RouterGroup) {
-	users := rg.Group("/user/")
+	users := rg.Group("/account/")
 
-	users.GET("page/", PageHandler)
+	users.GET("login/", UsersHandler)
 
 }
