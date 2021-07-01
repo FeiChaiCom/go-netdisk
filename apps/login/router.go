@@ -5,9 +5,10 @@ import (
 )
 
 // Add user apis to api group
-func RegisterUserGroup(rg *gin.RouterGroup) {
+func RegisterLoginGroup(rg *gin.RouterGroup) {
 	users := rg.Group("/account/")
 
-	users.GET("login/", UsersHandler)
+	users.POST("login/", AuthHandler)
+	users.POST("register/", RegisterHandler)
 
 }

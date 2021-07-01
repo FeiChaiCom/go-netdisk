@@ -3,6 +3,7 @@ package apps
 import (
 	"fmt"
 	"github.com/gaomugong/go-netdisk/apps/demo"
+	"github.com/gaomugong/go-netdisk/apps/login"
 	"github.com/gaomugong/go-netdisk/apps/matter"
 	"github.com/gaomugong/go-netdisk/apps/monitor"
 	"github.com/gaomugong/go-netdisk/apps/user"
@@ -15,6 +16,7 @@ import (
 type Register func(rg *gin.RouterGroup)
 
 var registers = []Register{
+	login.RegisterLoginGroup,
 	user.RegisterUserGroup,
 	matter.RegisterMatterGroup,
 	monitor.RegisterMonitorGroup,

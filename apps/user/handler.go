@@ -1,7 +1,7 @@
 package user
 
 import (
-	"github.com/gaomugong/go-netdisk/models"
+	"github.com/gaomugong/go-netdisk/models/db"
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
@@ -25,7 +25,7 @@ func PageHandler(c *gin.Context) {
 		return
 	}
 
-	users, totalItems, totalPages := models.GetAllUsers(p.Page, p.PageSize, p.OrderCreateTime)
+	users, totalItems, totalPages := db.GetAllUsers(p.Page, p.PageSize, p.OrderCreateTime)
 	log.Printf("%#v %d %d\n", p, totalItems, totalPages)
 
 	c.JSON(http.StatusOK, gin.H{
