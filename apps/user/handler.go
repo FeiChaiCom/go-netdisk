@@ -13,7 +13,7 @@ type userParam struct {
 	OrderCreateTime string `form:"orderCreateTime"`
 }
 
-// curl http://localhost:5000/api/account/users/?page=1&pageSize=20&orderCreateTime=DESC
+// curl http://localhost:5000/api/user/page/?page=1&pageSize=20&orderCreateTime=DESC
 func PageHandler(c *gin.Context) {
 	var p userParam
 	if err := c.ShouldBindQuery(&p); err != nil {

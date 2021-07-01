@@ -1,6 +1,7 @@
 package user
 
 import (
+	"github.com/gaomugong/go-netdisk/middleware"
 	"github.com/gin-gonic/gin"
 )
 
@@ -8,6 +9,6 @@ import (
 func RegisterUserGroup(rg *gin.RouterGroup) {
 	users := rg.Group("/user/")
 
-	users.GET("page/", PageHandler)
+	users.GET("page/", middleware.JWTLoginRequired(), PageHandler)
 
 }

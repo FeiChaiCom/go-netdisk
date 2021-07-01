@@ -39,18 +39,17 @@ func AuthHandler(c *gin.Context) {
 
 	// Fetch user by username
 	j := &middleware.JWT{SecretKey: []byte("feichaicom")}
-	claims := middleware.AuthClaims{
+	claims := middleware.MyClaims{
 		StandardClaims: jwt.StandardClaims{
 			Issuer:    "feichai",
-			NotBefore: time.Now().Unix() - 1000,
-			ExpiresAt: time.Now().Add(1).Unix(),
+			ExpiresAt: time.Now().Unix() + 3600,
 		},
 		Username: validUser.Username,
 		Password: validUser.Password,
 	}
 
 	token, _ := j.CreateToken(claims)
-	c.Header("x-token", token)
+	c.Header("X-TOKEN", token)
 
 	c.JSON(http.StatusOK, gin.H{
 		"result": true,
