@@ -1,7 +1,7 @@
 package user
 
 import (
-	"github.com/gaomugong/go-netdisk/models"
+	"github.com/gaomugong/go-netdisk/models/db"
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
@@ -13,7 +13,7 @@ type userParam struct {
 	OrderCreateTime string `form:"orderCreateTime"`
 }
 
-// curl http://localhost:5000/api/account/users/?page=1&pageSize=20&orderCreateTime=DESC
+// curl http://localhost:5000/api/user/page/?page=1&pageSize=20&orderCreateTime=DESC
 func PageHandler(c *gin.Context) {
 	var p userParam
 	if err := c.ShouldBindQuery(&p); err != nil {
@@ -25,7 +25,7 @@ func PageHandler(c *gin.Context) {
 		return
 	}
 
-	users, totalItems, totalPages := models.GetAllUsers(p.Page, p.PageSize, p.OrderCreateTime)
+	users, totalItems, totalPages := db.GetAllUsers(p.Page, p.PageSize, p.OrderCreateTime)
 	log.Printf("%#v %d %d\n", p, totalItems, totalPages)
 
 	c.JSON(http.StatusOK, gin.H{

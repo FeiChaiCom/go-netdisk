@@ -3,7 +3,7 @@ package matter
 import (
 	"fmt"
 	cfg "github.com/gaomugong/go-netdisk/config"
-	"github.com/gaomugong/go-netdisk/models"
+	"github.com/gaomugong/go-netdisk/models/db"
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
@@ -30,7 +30,7 @@ func PageHandler(c *gin.Context) {
 		return
 	}
 
-	matters, totalItems, totalPages := models.GetAllMatters(p.Puuid, p.Name, p.Page, p.PageSize, p.OrderCreateTime)
+	matters, totalItems, totalPages := db.GetAllMatters(p.Puuid, p.Name, p.Page, p.PageSize, p.OrderCreateTime)
 	log.Printf("%#v %d %d\n", p, totalItems, totalPages)
 
 	c.JSON(http.StatusOK, gin.H{

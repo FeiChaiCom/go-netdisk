@@ -3,10 +3,10 @@ package apps
 import (
 	"fmt"
 	"github.com/gaomugong/go-netdisk/apps/demo"
+	"github.com/gaomugong/go-netdisk/apps/login"
 	"github.com/gaomugong/go-netdisk/apps/matter"
 	"github.com/gaomugong/go-netdisk/apps/monitor"
 	"github.com/gaomugong/go-netdisk/apps/user"
-	"github.com/gaomugong/go-netdisk/common"
 	cfg "github.com/gaomugong/go-netdisk/config"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -15,6 +15,7 @@ import (
 type Register func(rg *gin.RouterGroup)
 
 var registers = []Register{
+	login.RegisterLoginGroup,
 	user.RegisterUserGroup,
 	matter.RegisterMatterGroup,
 	monitor.RegisterMonitorGroup,
@@ -27,7 +28,7 @@ func InitAPIRouter() *gin.Engine {
 	// engine.Use(gin.Logger())
 	engine.Use(cfg.ApiLogger)
 	engine.Use(gin.Recovery())
-	engine.Use(common.LoginRequiredMiddleware())
+	// engine.Use(common.LoginRequiredMiddleware())
 
 	// Set a lower memory limit for multipart forms (default 32M)
 	engine.MaxMultipartMemory = 8 << 20 // 8MiB
