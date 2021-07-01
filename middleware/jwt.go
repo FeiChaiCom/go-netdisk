@@ -42,8 +42,6 @@ func (j *JWT) ParseToken(tokenString string) (*MyClaims, error) {
 
 	if v, ok := token.Claims.(*MyClaims); ok && token.Valid {
 		return v, nil
-	} else {
-		log.Printf("%#v, %b", v, ok)
 	}
 
 	return nil, errors.New("invalid token")
