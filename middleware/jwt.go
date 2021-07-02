@@ -62,7 +62,6 @@ func JWTLoginRequired() gin.HandlerFunc {
 		claims, err := j.ParseToken(token)
 
 		if err != nil {
-			log.Printf("parse token error: %s", err)
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 				"message": "token not valid",
 			})

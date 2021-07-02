@@ -42,7 +42,7 @@ func AuthHandler(c *gin.Context) {
 	claims := middleware.MyClaims{
 		StandardClaims: jwt.StandardClaims{
 			Issuer:    "feichai",
-			ExpiresAt: time.Now().Unix() + 3600,
+			ExpiresAt: time.Now().Add(time.Hour * 24 * 1).Unix(),
 		},
 		Username: validUser.Username,
 		Password: validUser.Password,
