@@ -79,9 +79,9 @@ func DeleteMatterHandler(c *gin.Context) {
 	log.Printf("%#v", p)
 
 	// TODO: apply transaction when delete file and db row
-	if matter, err := db.GetMatterByUUID(p.UUID); err == nil {
-		_ = os.Remove(matter.Path)
-	}
+	// if matter, err := db.GetMatterByUUID(p.UUID); err == nil {
+	// 	_ = os.Remove(matter.Path)
+	// }
 
 	if err := db.DeleteMatterByUUID(p.UUID); err != nil {
 		c.JSON(http.StatusOK, gin.H{
@@ -118,10 +118,25 @@ func DetailHandler(c *gin.Context) {
 		return
 	}
 
+	// Add parent info
+	if matter.PUUID != cfg.MatterRootUUID {
+		parent, _ := db.GetMatterByUUID(matter.PUUID)
+		c.JSON(http.StatusOK, gin.H{
+			"result": true,
+			"data": db.SubDirDetailMatter{
+				Matter: matter, Parent: parent,
+			},
+		})
+		return
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"result": true,
-		"data":   matter,
+		"data": db.RootDirDetailMatter{
+			Matter: matter, Parent: nil,
+		},
 	})
+
 }
 
 // Upload file to media dir
