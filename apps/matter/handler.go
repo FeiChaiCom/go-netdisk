@@ -136,7 +136,6 @@ func DetailHandler(c *gin.Context) {
 			Matter: matter, Parent: nil,
 		},
 	})
-
 }
 
 // Upload file to media dir
