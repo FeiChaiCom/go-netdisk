@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/gaomugong/go-netdisk/apps"
 	cfg "github.com/gaomugong/go-netdisk/config"
+	"github.com/gaomugong/go-netdisk/services"
 	"github.com/gin-gonic/gin"
 	"io"
 	"log"
@@ -34,10 +34,10 @@ func main() {
 	}
 
 	// Init url router for apis
-	router := apps.InitAPIRouter()
+	router := services.InitAPIRouter()
 
 	// Init template and static files serve router
-	apps.InitTemplateRouter(router)
+	services.InitTemplateRouter(router)
 
 	// _ = router.Run(fmt.Sprintf(":%d", cfg.Port))
 	srv := &http.Server{
