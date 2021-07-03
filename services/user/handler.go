@@ -2,9 +2,8 @@ package user
 
 import (
 	"github.com/gaomugong/go-netdisk/models/db"
+	R "github.com/gaomugong/go-netdisk/render"
 	"github.com/gin-gonic/gin"
-	"log"
-	"net/http"
 )
 
 type userParam struct {
@@ -17,24 +16,15 @@ type userParam struct {
 func PageHandler(c *gin.Context) {
 	var p userParam
 	if err := c.ShouldBindQuery(&p); err != nil {
-		c.JSON(http.StatusOK, gin.H{
-			"result":  false,
-			"message": err.Error(),
-			"data":    nil,
-		})
+		R.FailWithError(c, err)
 		return
 	}
 
 	users, totalItems, totalPages := db.GetAllUsers(p.Page, p.PageSize, p.OrderCreateTime)
-	log.Printf("%#v %d %d\n", p, totalItems, totalPages)
 
-	c.JSON(http.StatusOK, gin.H{
-		"result": true,
-		"data": gin.H{
-			"totalPage":  totalPages,
-			"totalItems": totalItems,
-			"data":       users,
-		},
-		"message": "ok",
+	R.Ok(c, gin.H{
+		"totalPage":  totalPages,
+		"totalItems": totalItems,
+		"data":       users,
 	})
 }
