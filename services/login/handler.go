@@ -1,10 +1,10 @@
 package login
 
 import (
-	"fmt"
 	cfg "github.com/gaomugong/go-netdisk/config"
 	"github.com/gaomugong/go-netdisk/middleware"
 	"github.com/gaomugong/go-netdisk/models/db"
+	R "github.com/gaomugong/go-netdisk/render"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
 	"net/http"
@@ -20,29 +20,19 @@ type loginParam struct {
 func AuthHandler(c *gin.Context) {
 	var p loginParam
 	if err := c.ShouldBind(&p); err != nil {
-		c.JSON(http.StatusOK, gin.H{
-			"result":  false,
-			"message": err.Error(),
-		})
+		R.FailWithError(c, err)
 		return
 	}
 
 	// Verify username & password and login
 	u := &db.User{Username: p.Username, Password: p.Password}
 	validUser, err := db.Login(u)
-	fmt.Printf("%#v, %s", validUser, err)
 	if err != nil {
-		c.JSON(http.StatusOK, gin.H{
-			"result":  false,
-			"error":   err.Error(),
-			"message": "invalid user or password",
-		})
+		R.Fail(c, "invalid user or password")
 		return
 	}
 
 	// Make token response with user claim
-	nowTime := time.Now()
-	expiredTime := nowTime.Add(time.Hour * 24).Unix()
 	j := &middleware.JWT{SecretKey: []byte(cfg.JwtSecretKey)}
 	claims := middleware.MyClaims{
 		TokenUser: middleware.TokenUser{
@@ -52,7 +42,7 @@ func AuthHandler(c *gin.Context) {
 		},
 		StandardClaims: jwt.StandardClaims{
 			Issuer:    cfg.JwtIssuer,
-			ExpiresAt: expiredTime,
+			ExpiresAt: time.Now().Add(time.Hour * 24).Unix(),
 		},
 	}
 
@@ -80,15 +70,9 @@ func RegisterHandler(c *gin.Context) {
 	newUser, err := db.Register(user)
 
 	if err != nil {
-		c.JSON(http.StatusOK, gin.H{
-			"result":  false,
-			"message": err.Error(),
-		})
+		R.FailWithError(c, err)
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"result": true,
-		"data":   newUser,
-	})
+	R.Ok(c, newUser)
 }
