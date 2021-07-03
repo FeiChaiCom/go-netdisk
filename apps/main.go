@@ -7,7 +7,6 @@ import (
 	"github.com/gaomugong/go-netdisk/apps/matter"
 	"github.com/gaomugong/go-netdisk/apps/monitor"
 	"github.com/gaomugong/go-netdisk/apps/user"
-	"github.com/gaomugong/go-netdisk/common"
 	cfg "github.com/gaomugong/go-netdisk/config"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -29,7 +28,7 @@ func InitAPIRouter() *gin.Engine {
 	// engine.Use(gin.Logger())
 	engine.Use(cfg.ApiLogger)
 	engine.Use(gin.Recovery())
-	engine.Use(common.LoginRequiredMiddleware())
+	// engine.Use(common.LoginRequiredMiddleware())
 
 	// Set a lower memory limit for multipart forms (default 32M)
 	engine.MaxMultipartMemory = 8 << 20 // 8MiB
