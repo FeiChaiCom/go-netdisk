@@ -111,7 +111,7 @@ func testUploadFile(c *gin.Context) {
 
 	if err := c.SaveUploadedFile(file, dstFile); err != nil {
 		c.JSON(http.StatusOK, gin.H{
-			"result":  true,
+			"result":  false,
 			"message": err.Error(),
 		})
 		return

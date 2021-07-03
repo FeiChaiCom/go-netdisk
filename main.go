@@ -81,4 +81,10 @@ func init() {
 			panic(err)
 		}
 	}
+
+	if _, err := os.Stat(cfg.MatterRoot); os.IsNotExist(err) {
+		if err = os.Mkdir(cfg.MatterRoot, 0755); err != nil {
+			panic(err)
+		}
+	}
 }

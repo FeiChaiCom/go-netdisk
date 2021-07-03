@@ -7,6 +7,7 @@ import (
 	"gorm.io/gorm"
 	"math"
 	"mime/multipart"
+	"os"
 	"time"
 )
 
@@ -36,33 +37,41 @@ func init() {
 }
 
 func (m *Matter) BeforeCreate(*gorm.DB) (err error) {
-	var user User
-	cfg.DB.First(&user, "uuid = ?", m.UserUUID)
+	// user, _ := GetUserByUUID(m.UserUUID)
+	// m.UserName = user.Username
 
-	m.UserName = user.Username
 	m.UUID = uuid.NewV4().String()
 	m.CreateTime = time.Now()
 	m.UpdateTime = time.Now()
+
 	return nil
 }
 
-func CreateDirectory(userUUID, puuid, dirName string) (matter *Matter, err error) {
+// TODO-NOT-BEP: delete file or directory
+func (m *Matter) AfterDelete(*gorm.DB) (err error) {
+	realPath := cfg.MatterRoot + m.Path
+	return os.RemoveAll(realPath)
+}
+
+func CreateDirectory(username, userUUID, puuid, path, name string) (matter *Matter, err error) {
 	matter = &Matter{
+		UserName: username,
 		UserUUID: userUUID,
 		PUUID:    puuid,
-		Name:     dirName,
+		Name:     name,
 		Dir:      true,
 		Size:     0,
 		File:     "",
-		Path:     "",
+		Path:     path,
 		Times:    0,
 	}
 	err = cfg.DB.Create(&matter).Error
 	return
 }
 
-func CreateMatter(userUUID, puuid, filePath string, file *multipart.FileHeader) (matter *Matter, err error) {
+func CreateMatter(username, userUUID, puuid, filePath string, file *multipart.FileHeader) (matter *Matter, err error) {
 	matter = &Matter{
+		UserName: username,
 		UserUUID: userUUID,
 		PUUID:    puuid,
 		Name:     file.Filename,
@@ -73,6 +82,11 @@ func CreateMatter(userUUID, puuid, filePath string, file *multipart.FileHeader) 
 	}
 	err = cfg.DB.Create(matter).Error
 	return
+}
+
+// Delete matter record by uuid
+func DeleteMatterByUUID(uuid string) error {
+	return cfg.DB.Delete(&Matter{}, "uuid = ?", uuid).Error
 }
 
 // Get matter record by uuid

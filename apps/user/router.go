@@ -7,8 +7,8 @@ import (
 
 // Add user apis to api group
 func RegisterUserGroup(rg *gin.RouterGroup) {
-	users := rg.Group("/user/")
-
-	users.GET("page/", middleware.JWTLoginRequired(), PageHandler)
-
+	users := rg.Group("/user/").Use(middleware.JWTLoginRequired())
+	{
+		users.GET("page/", PageHandler)
+	}
 }

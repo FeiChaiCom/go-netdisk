@@ -8,8 +8,8 @@ import (
 	"log"
 	"mime/multipart"
 	"net/http"
+	"os"
 	"strings"
-	"time"
 )
 
 type PageParam struct {
@@ -39,6 +39,7 @@ type CreateDirParam struct {
 	Name string `form:"name" binding:"required"`
 }
 
+// Get matter list with pagination
 // curl http://localhost:5000/api/matter/page/?page=1&pageSize=20&orderCreateTime=DESC&puuid=root&orderDir=DESC
 func PageHandler(c *gin.Context) {
 	var p PageParam
@@ -52,7 +53,7 @@ func PageHandler(c *gin.Context) {
 	}
 
 	matters, totalItems, totalPages := db.GetAllMatters(p.Puuid, p.Name, p.Page, p.PageSize, p.OrderCreateTime)
-	log.Printf("%#v %d %d\n", p, totalItems, totalPages)
+	// log.Printf("%#v %d %d\n", p, totalItems, totalPages)
 
 	c.JSON(http.StatusOK, gin.H{
 		"result": true,
@@ -65,10 +66,24 @@ func PageHandler(c *gin.Context) {
 	})
 }
 
-// curl http://localhost:5000/api/matter/get_detail/?uuid=5cfa8798-fe3e-4ffa-a0ba-b9afd88003f5
-func DetailHandler(c *gin.Context) {
-	detailParam := &BaseQueryParam{}
-	if err := c.ShouldBind(detailParam); err != nil {
+// Delete matter file or directory
+func DeleteMatterHandler(c *gin.Context) {
+	var p BaseQueryParam
+	if err := c.ShouldBind(&p); err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"result":  false,
+			"message": err.Error(),
+		})
+		return
+	}
+	log.Printf("%#v", p)
+
+	// TODO: apply transaction when delete file and db row
+	if matter, err := db.GetMatterByUUID(p.UUID); err == nil {
+		_ = os.Remove(matter.Path)
+	}
+
+	if err := db.DeleteMatterByUUID(p.UUID); err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"result":  false,
 			"message": err.Error(),
@@ -76,7 +91,25 @@ func DetailHandler(c *gin.Context) {
 		return
 	}
 
-	matter, err := db.GetMatterByUUID(detailParam.UUID)
+	c.JSON(http.StatusOK, gin.H{
+		"result":  true,
+		"message": "success",
+	})
+}
+
+// Get matter detail info
+// curl http://localhost:5000/api/matter/get_detail/?uuid=5cfa8798-fe3e-4ffa-a0ba-b9afd88003f5
+func DetailHandler(c *gin.Context) {
+	var p BaseQueryParam
+	if err := c.ShouldBind(&p); err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"result":  false,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	matter, err := db.GetMatterByUUID(p.UUID)
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"result":  false,
@@ -91,13 +124,14 @@ func DetailHandler(c *gin.Context) {
 	})
 }
 
+// Upload file to media dir
 // curl -X POST http://localhost:5000/api/matter/upload/ \
 //  -F "file=@/tmp/log.tar.gz" \
 //  -H "Content-Type: multipart/form-data"
 func UploadFileHandler(c *gin.Context) {
-	var uploadParam UploadParam
+	var p UploadParam
 	log.Printf("upload context: %#v", c.Request)
-	if err := c.ShouldBind(&uploadParam); err != nil {
+	if err := c.ShouldBind(&p); err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"result":  false,
 			"message": err.Error(),
@@ -105,21 +139,30 @@ func UploadFileHandler(c *gin.Context) {
 		return
 	}
 
-	log.Printf("upload param: %#v", uploadParam)
-	file := uploadParam.File
-	dstFilePath := strings.Join([]string{cfg.MediaDir, file.Filename}, "/")
-	if err := c.SaveUploadedFile(file, dstFilePath); err != nil {
+	// Save file to local dir
+	parentDir := ""
+	if p.Puuid != cfg.MatterRootUUID {
+		if pDir, err := db.GetMatterByUUID(p.Puuid); err == nil {
+			parentDir = pDir.Path
+		}
+	}
+
+	filePath := parentDir + "/" + p.File.Filename
+	realFilePath := strings.Join([]string{cfg.MatterRoot, filePath}, "/")
+	if err := c.SaveUploadedFile(p.File, realFilePath); err != nil {
 		c.JSON(http.StatusOK, gin.H{
-			"result":  true,
+			"result":  false,
 			"message": err.Error(),
 		})
 		return
 	}
+	log.Printf("upload param: %#v -> %s", p, realFilePath)
 
-	matter, err := db.CreateMatter(uploadParam.UserUUID, uploadParam.Puuid, dstFilePath, uploadParam.File)
+	username := c.GetString("username")
+	matter, err := db.CreateMatter(username, p.UserUUID, p.Puuid, filePath, p.File)
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
-			"result":  true,
+			"result":  false,
 			"message": err.Error(),
 		})
 		return
@@ -128,14 +171,14 @@ func UploadFileHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"result":  true,
 		"data":    matter,
-		"message": fmt.Sprintf("upload <%s> success", file.Filename),
+		"message": fmt.Sprintf("upload <%s> success", p.File.Filename),
 	})
 }
 
-// curl http://localhost:5000/api/tests/test_get_file/
-func testGetFile(c *gin.Context) {
-	tmpFileName := fmt.Sprintf("download_%d", time.Now().Unix())
-	name := c.DefaultQuery("name", tmpFileName)
+// Download matter file as attachment
+// curl http://localhost:5000/api/matter/download/?name=log.tar.gz
+func DownloadFileHandler(c *gin.Context) {
+	name := c.DefaultQuery("name", "")
 	matterUUID := c.Param("uuid")
 
 	matter, err := db.GetMatterByUUID(matterUUID)
@@ -147,25 +190,44 @@ func testGetFile(c *gin.Context) {
 		return
 	}
 
-	log.Printf("%s, %s, %s, %s, %#v", name, matterUUID, matter.Path, matter.Name, matter)
-	c.FileAttachment(matter.Path, matter.Name)
-	// curl http://localhost:5000/api/tests/test_get_file/ -o log.tar.gz
-	// c.File(cfg.MediaDir + "/log.tar.gz")
+	if name == "" {
+		name = matter.Name
+	}
+
+	realPath := cfg.MatterRoot + matter.File
+	c.FileAttachment(realPath, name)
+	// c.File(matter.Path)
 }
 
+// Create matter dir
 func CreateDirectoryHandler(c *gin.Context) {
-	var createDirParam CreateDirParam
-	if err := c.ShouldBind(&createDirParam); err != nil {
+	var p CreateDirParam
+	if err := c.ShouldBind(&p); err != nil {
 		c.JSON(http.StatusOK, gin.H{
-			"result":  true,
+			"result":  false,
 			"message": err.Error(),
 		})
 	}
 
-	matterDir, err := db.CreateDirectory(createDirParam.UserUUID, createDirParam.Puuid, createDirParam.Name)
+	// Create dir in filesystem
+	parentDir := ""
+	if p.Puuid != cfg.MatterRootUUID {
+		if pDir, err := db.GetMatterByUUID(p.Puuid); err == nil {
+			parentDir = pDir.Path
+		}
+	}
+
+	path := parentDir + "/" + p.Name
+	realPath := cfg.MatterRoot + path
+	if err := os.MkdirAll(realPath, 0755); err != nil {
+		log.Printf("mkdir <%s> error: %s", realPath, err)
+	}
+
+	username := c.GetString("username")
+	matterDir, err := db.CreateDirectory(username, p.UserUUID, p.Puuid, path, p.Name)
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
-			"result":  true,
+			"result":  false,
 			"message": err.Error(),
 		})
 		return

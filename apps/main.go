@@ -23,15 +23,15 @@ var registers = []Register{
 }
 
 func InitAPIRouter() *gin.Engine {
-	// engine := gin.Default()
 	engine := gin.New()
+	// engine := gin.Default()
 	// engine.Use(gin.Logger())
-	engine.Use(cfg.ApiLogger)
+	engine.Use(cfg.APILogger)
 	engine.Use(gin.Recovery())
-	// engine.Use(common.LoginRequiredMiddleware())
+	// engine.Use(cfg.LoginRequiredMiddleware())
 
 	// Set a lower memory limit for multipart forms (default 32M)
-	engine.MaxMultipartMemory = 8 << 20 // 8MiB
+	engine.MaxMultipartMemory = 100 << 20 // 100MiB
 
 	// engine := gin.Default()
 	apiGroup := engine.Group("/api")
