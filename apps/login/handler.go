@@ -45,12 +45,13 @@ func AuthHandler(c *gin.Context) {
 	expiredTime := nowTime.Add(time.Hour * 24).Unix()
 	j := &middleware.JWT{SecretKey: []byte(common.JWT_SECRET_KEY)}
 	claims := middleware.MyClaims{
+		UUID:     validUser.UUID.String(),
+		Username: validUser.Username,
+		Password: validUser.Password,
 		StandardClaims: jwt.StandardClaims{
 			Issuer:    common.JWT_ISSUER,
 			ExpiresAt: expiredTime,
 		},
-		Username: validUser.Username,
-		Password: validUser.Password,
 	}
 
 	token, _ := j.CreateToken(claims)
