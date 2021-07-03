@@ -2,11 +2,10 @@ package middleware
 
 import (
 	"errors"
-	"github.com/gaomugong/go-netdisk/common"
+	cfg "github.com/gaomugong/go-netdisk/config"
 	"github.com/gaomugong/go-netdisk/models/db"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
-	"log"
 	"net/http"
 )
 
@@ -14,17 +13,35 @@ type JWT struct {
 	SecretKey []byte
 }
 
-type MyClaims struct {
-	jwt.StandardClaims
+type TokenUser struct {
 	UUID     string
 	Username string
 	Password string
+}
+
+type MyClaims struct {
+	jwt.StandardClaims
+	TokenUser
 }
 
 var (
 	ErrInvalidToken  = errors.New("invalid token")
 	ErrLoginRequired = errors.New("login failed")
 )
+
+func GetTokenUser(c *gin.Context) (*TokenUser, error) {
+	claims, exist := c.Get("claims")
+	if !exist {
+		return nil, errors.New("claims not exist")
+	}
+
+	myClaim, ok := claims.(*MyClaims)
+	if !ok {
+		return nil, errors.New("parse myclaim error")
+	}
+
+	return &myClaim.TokenUser, nil
+}
 
 func (j *JWT) CreateToken(claims MyClaims) (string, error) {
 	// Create a new token object, specifying signing method and the claims
@@ -42,7 +59,7 @@ func (j *JWT) ParseToken(tokenString string) (*MyClaims, error) {
 		return j.SecretKey, nil
 	})
 
-	log.Printf("%#v, %s", token, err)
+	// log.Printf("%#v, %s", token, err)
 	if err != nil {
 		return nil, err
 	}
@@ -59,7 +76,7 @@ func JWTLoginRequired() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// get token from header or cookie
 		// token := c.GetHeader("X-TOKEN")
-		token, err := c.Cookie(common.AUTH_COOKIE_NAME)
+		token, err := c.Cookie(cfg.AuthCookieName)
 		if token == "" || err != nil {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 				"message": "login required, token not exist",
@@ -67,7 +84,7 @@ func JWTLoginRequired() gin.HandlerFunc {
 			return
 		}
 
-		j := JWT{SecretKey: []byte(common.JWT_SECRET_KEY)}
+		j := JWT{SecretKey: []byte(cfg.JwtSecretKey)}
 		claims, err := j.ParseToken(token)
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
@@ -85,6 +102,10 @@ func JWTLoginRequired() gin.HandlerFunc {
 
 		// Add claims of user info to context
 		c.Set("claims", claims)
+
+		// Add for shortcut
+		c.Set("UUID", claims.TokenUser.UUID)
+		c.Set("username", claims.TokenUser.Username)
 		c.Next()
 	}
 }
