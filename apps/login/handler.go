@@ -2,7 +2,7 @@ package login
 
 import (
 	"fmt"
-	"github.com/gaomugong/go-netdisk/common"
+	cfg "github.com/gaomugong/go-netdisk/config"
 	"github.com/gaomugong/go-netdisk/middleware"
 	"github.com/gaomugong/go-netdisk/models/db"
 	"github.com/gin-gonic/gin"
@@ -30,8 +30,8 @@ func AuthHandler(c *gin.Context) {
 	// Verify username & password and login
 	u := &db.User{Username: p.Username, Password: p.Password}
 	validUser, err := db.Login(u)
+	fmt.Printf("%#v, %s", validUser, err)
 	if err != nil {
-		fmt.Printf("%#v", err)
 		c.JSON(http.StatusOK, gin.H{
 			"result":  false,
 			"error":   err.Error(),
@@ -43,20 +43,22 @@ func AuthHandler(c *gin.Context) {
 	// Make token response with user claim
 	nowTime := time.Now()
 	expiredTime := nowTime.Add(time.Hour * 24).Unix()
-	j := &middleware.JWT{SecretKey: []byte(common.JWT_SECRET_KEY)}
+	j := &middleware.JWT{SecretKey: []byte(cfg.JwtSecretKey)}
 	claims := middleware.MyClaims{
-		UUID:     validUser.UUID.String(),
-		Username: validUser.Username,
-		Password: validUser.Password,
+		TokenUser: middleware.TokenUser{
+			UUID:     validUser.UUID.String(),
+			Username: validUser.Username,
+			Password: validUser.Password,
+		},
 		StandardClaims: jwt.StandardClaims{
-			Issuer:    common.JWT_ISSUER,
+			Issuer:    cfg.JwtIssuer,
 			ExpiresAt: expiredTime,
 		},
 	}
 
 	token, _ := j.CreateToken(claims)
 	// c.Header("X-TOKEN", token)
-	c.SetCookie(common.AUTH_COOKIE_NAME, token, 60*60*24, "/", "", false, true)
+	c.SetCookie(cfg.AuthCookieName, token, 60*60*24, "/", "", false, true)
 	c.JSON(http.StatusOK, gin.H{
 		"user":        validUser,
 		"accessToken": token,

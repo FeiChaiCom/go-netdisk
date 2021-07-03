@@ -62,6 +62,11 @@ func Login(u *User) (user *User, err error) {
 	return user, err
 }
 
+func GetUserByUUID(uuid string) (user *User, err error) {
+	err = cfg.DB.First(&user, "uuid = ?", uuid).Error
+	return
+}
+
 func FindUserByName(username string) (user *User, err error) {
 	err = cfg.DB.Where("username = ?", username).First(&user).Error
 	return
