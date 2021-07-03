@@ -1,13 +1,13 @@
-package apps
+package services
 
 import (
 	"fmt"
-	"github.com/gaomugong/go-netdisk/apps/demo"
-	"github.com/gaomugong/go-netdisk/apps/login"
-	"github.com/gaomugong/go-netdisk/apps/matter"
-	"github.com/gaomugong/go-netdisk/apps/monitor"
-	"github.com/gaomugong/go-netdisk/apps/user"
 	cfg "github.com/gaomugong/go-netdisk/config"
+	"github.com/gaomugong/go-netdisk/services/demo"
+	"github.com/gaomugong/go-netdisk/services/login"
+	"github.com/gaomugong/go-netdisk/services/matter"
+	"github.com/gaomugong/go-netdisk/services/monitor"
+	"github.com/gaomugong/go-netdisk/services/user"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )

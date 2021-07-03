@@ -13,4 +13,5 @@ const (
 	StaticURL          = "/static"
 	MediaURL           = "/media"
 	TemplateDirPattern = "./templates/*"
+	SimpleTime         = "2006-01-02 15:04:05"
 )
