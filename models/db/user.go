@@ -52,6 +52,8 @@ func init() {
 	// cfg.DB.AutoMigrate(&User{})
 }
 
+var ErrUserExist = errors.New("username is registered, please replace another one")
+
 func Login(u *User) (user *User, err error) {
 	h := md5.New()
 	h.Write([]byte(u.Password))
@@ -100,7 +102,7 @@ func GetAllUsers(page int, pageSize int, order string) (users []*User, totalItem
 func Register(u User) (user User, err error) {
 	err = cfg.DB.Where("username = ?", u.Username).First(&user).Error
 	if !errors.Is(err, gorm.ErrRecordNotFound) {
-		return user, errors.New("用户名已注册")
+		return user, ErrUserExist
 	}
 
 	h := md5.New()

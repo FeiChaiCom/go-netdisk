@@ -1,6 +1,8 @@
 package login
 
 import (
+	"fmt"
+	"github.com/gaomugong/go-netdisk/common"
 	"github.com/gaomugong/go-netdisk/middleware"
 	"github.com/gaomugong/go-netdisk/models/db"
 	"github.com/gin-gonic/gin"
@@ -17,7 +19,7 @@ type loginParam struct {
 // curl http://localhost:5000/api/account/login/ -X POST -d '{"username": "miya", "password": "miya.12345"}'
 func AuthHandler(c *gin.Context) {
 	var p loginParam
-	if err := c.ShouldBindJSON(&p); err != nil {
+	if err := c.ShouldBind(&p); err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"result":  false,
 			"message": err.Error(),
@@ -25,40 +27,39 @@ func AuthHandler(c *gin.Context) {
 		return
 	}
 
-	// Verify username & password and return jwt token as header
+	// Verify username & password and login
 	u := &db.User{Username: p.Username, Password: p.Password}
-
 	validUser, err := db.Login(u)
 	if err != nil {
+		fmt.Printf("%#v", err)
 		c.JSON(http.StatusOK, gin.H{
 			"result":  false,
-			"message": err.Error(),
+			"error":   err.Error(),
+			"message": "invalid user or password",
 		})
 		return
 	}
 
-	// Fetch user by username
-	j := &middleware.JWT{SecretKey: []byte("feichaicom")}
+	// Make token response with user claim
+	nowTime := time.Now()
+	expiredTime := nowTime.Add(time.Hour * 24).Unix()
+	j := &middleware.JWT{SecretKey: []byte(common.JWT_SECRET_KEY)}
 	claims := middleware.MyClaims{
 		StandardClaims: jwt.StandardClaims{
-			Issuer:    "feichai",
-			ExpiresAt: time.Now().Unix() + 3600,
+			Issuer:    common.JWT_ISSUER,
+			ExpiresAt: expiredTime,
 		},
 		Username: validUser.Username,
 		Password: validUser.Password,
 	}
 
 	token, _ := j.CreateToken(claims)
-	c.Header("X-TOKEN", token)
-
+	// c.Header("X-TOKEN", token)
+	c.SetCookie(common.AUTH_COOKIE_NAME, token, 60*60*24, "/", "", false, true)
 	c.JSON(http.StatusOK, gin.H{
-		"result": true,
-		"data": gin.H{
-			"User":      validUser,
-			"Token":     token,
-			"ExpiresAt": claims.StandardClaims.ExpiresAt * 1000,
-		},
-		"message": "login success",
+		"user":        validUser,
+		"accessToken": token,
+		"ExpiresAt":   claims.StandardClaims.ExpiresAt * 1000,
 	})
 }
 

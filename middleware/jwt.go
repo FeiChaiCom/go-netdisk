@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"errors"
+	"github.com/gaomugong/go-netdisk/common"
 	"github.com/gaomugong/go-netdisk/models/db"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
@@ -18,6 +19,11 @@ type MyClaims struct {
 	Username string
 	Password string
 }
+
+var (
+	ErrInvalidToken  = errors.New("invalid token")
+	ErrLoginRequired = errors.New("login failed")
+)
 
 func (j *JWT) CreateToken(claims MyClaims) (string, error) {
 	// Create a new token object, specifying signing method and the claims
@@ -44,38 +50,39 @@ func (j *JWT) ParseToken(tokenString string) (*MyClaims, error) {
 		return v, nil
 	}
 
-	return nil, errors.New("invalid token")
+	return nil, ErrInvalidToken
 }
 
+// Login middleware for user auth required apis
 func JWTLoginRequired() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		token := c.GetHeader("X-TOKEN")
-
-		if token == "" {
+		// get token from header or cookie
+		// token := c.GetHeader("X-TOKEN")
+		token, err := c.Cookie(common.AUTH_COOKIE_NAME)
+		if token == "" || err != nil {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-				"message": "token not exist",
+				"message": "login required, token not exist",
 			})
 			return
 		}
 
-		j := JWT{SecretKey: []byte("feichaicom")}
+		j := JWT{SecretKey: []byte(common.JWT_SECRET_KEY)}
 		claims, err := j.ParseToken(token)
-
 		if err != nil {
-			log.Printf("parse token error: %s", err)
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-				"message": "token not valid",
+				"message": "login required, token not valid",
 			})
 			return
 		}
 
 		if _, err := db.FindUserByName(claims.Username); err != nil {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-				"message": "username not valid",
+				"message": "login required, user not found",
 			})
 			return
 		}
 
+		// Add claims of user info to context
 		c.Set("claims", claims)
 		c.Next()
 	}
