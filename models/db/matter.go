@@ -28,16 +28,6 @@ type Matter struct { //nolint:maligned
 	File       string    `gorm:"column:file;type:varchar(100) not null" json:"file"`
 }
 
-type SubDirDetailMatter struct {
-	*Matter
-	Parent *Matter `json:"parent"`
-}
-
-type RootDirDetailMatter struct {
-	*Matter
-	Parent *string `json:"parent"`
-}
-
 func (Matter) TableName() string {
 	return "matter"
 }

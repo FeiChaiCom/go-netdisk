@@ -25,51 +25,8 @@ type MyClaims struct {
 }
 
 var (
-	ErrInvalidToken  = errors.New("invalid token")
-	ErrLoginRequired = errors.New("login failed")
+	ErrInvalidToken = errors.New("invalid token")
 )
-
-func GetTokenUser(c *gin.Context) (*TokenUser, error) {
-	claims, exist := c.Get("claims")
-	if !exist {
-		return nil, errors.New("claims not exist")
-	}
-
-	myClaim, ok := claims.(*MyClaims)
-	if !ok {
-		return nil, errors.New("parse myclaim error")
-	}
-
-	return &myClaim.TokenUser, nil
-}
-
-func (j *JWT) CreateToken(claims MyClaims) (string, error) {
-	// Create a new token object, specifying signing method and the claims
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-
-	// Sign and get the complete encoded token as a string using the secret
-	return token.SignedString(j.SecretKey)
-}
-
-func (j *JWT) ParseToken(tokenString string) (*MyClaims, error) {
-	token, err := jwt.ParseWithClaims(tokenString, &MyClaims{}, func(t *jwt.Token) (interface{}, error) {
-		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, errors.New("sign method not support")
-		}
-		return j.SecretKey, nil
-	})
-
-	// log.Printf("%#v, %s", token, err)
-	if err != nil {
-		return nil, err
-	}
-
-	if v, ok := token.Claims.(*MyClaims); ok && token.Valid {
-		return v, nil
-	}
-
-	return nil, ErrInvalidToken
-}
 
 // Login middleware for user auth required apis
 func JWTLoginRequired() gin.HandlerFunc {
@@ -93,19 +50,45 @@ func JWTLoginRequired() gin.HandlerFunc {
 			return
 		}
 
-		if _, err := db.FindUserByName(claims.Username); err != nil {
+		user, err := db.GetUserByUUID(claims.UUID)
+		if err != nil {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 				"message": "login required, user not found",
 			})
 			return
 		}
 
-		// Add claims of user info to context
-		c.Set("claims", claims)
-
-		// Add for shortcut
+		// Add user info to context
+		c.Set("user", user)
 		c.Set("UUID", claims.TokenUser.UUID)
 		c.Set("username", claims.TokenUser.Username)
 		c.Next()
 	}
+}
+
+func (j *JWT) CreateToken(claims MyClaims) (string, error) {
+	// Create a new token object, specifying signing method and the claims
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+	// Sign and get the complete encoded token as a string using the secret
+	return token.SignedString(j.SecretKey)
+}
+
+func (j *JWT) ParseToken(tokenString string) (*MyClaims, error) {
+	token, err := jwt.ParseWithClaims(tokenString, &MyClaims{}, func(t *jwt.Token) (interface{}, error) {
+		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, errors.New("sign method not support")
+		}
+		return j.SecretKey, nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	if v, ok := token.Claims.(*MyClaims); ok && token.Valid {
+		return v, nil
+	}
+
+	return nil, ErrInvalidToken
 }
