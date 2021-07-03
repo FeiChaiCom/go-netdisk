@@ -28,6 +28,16 @@ type Matter struct { //nolint:maligned
 	File       string    `gorm:"column:file;type:varchar(100) not null" json:"file"`
 }
 
+type SubDirDetailMatter struct {
+	*Matter
+	Parent *Matter `json:"parent"`
+}
+
+type RootDirDetailMatter struct {
+	*Matter
+	Parent *string `json:"parent"`
+}
+
 func (Matter) TableName() string {
 	return "matter"
 }
@@ -36,7 +46,7 @@ func init() {
 	// cfg.DB.AutoMigrate(&Matter{})
 }
 
-func (m *Matter) BeforeCreate(*gorm.DB) (err error) {
+func (m *Matter) BeforeCreate(tx *gorm.DB) (err error) {
 	// user, _ := GetUserByUUID(m.UserUUID)
 	// m.UserName = user.Username
 
@@ -48,9 +58,12 @@ func (m *Matter) BeforeCreate(*gorm.DB) (err error) {
 }
 
 // TODO-NOT-BEP: delete file or directory
-func (m *Matter) AfterDelete(*gorm.DB) (err error) {
-	realPath := cfg.MatterRoot + m.Path
-	return os.RemoveAll(realPath)
+func (m *Matter) BeforeDelete(tx *gorm.DB) (err error) {
+	if m.Path != "" {
+		realPath := cfg.MatterRoot + m.Path
+		return os.RemoveAll(realPath)
+	}
+	return nil
 }
 
 func CreateDirectory(username, userUUID, puuid, path, name string) (matter *Matter, err error) {
@@ -86,7 +99,14 @@ func CreateMatter(username, userUUID, puuid, filePath string, file *multipart.Fi
 
 // Delete matter record by uuid
 func DeleteMatterByUUID(uuid string) error {
-	return cfg.DB.Delete(&Matter{}, "uuid = ?", uuid).Error
+	var matter Matter
+	if err := cfg.DB.First(&matter, "uuid = ?", uuid); err.Error != nil {
+		return err.Error
+	}
+
+	return cfg.DB.Delete(&matter).Error
+	// Hooks can't get matter object
+	// return cfg.DB.Delete(&Matter{}, "uuid = ?", uuid).Error
 }
 
 // Get matter record by uuid
