@@ -4,52 +4,24 @@ import (
 	"fmt"
 	cfg "github.com/gaomugong/go-netdisk/config"
 	"github.com/gaomugong/go-netdisk/models/db"
+	"github.com/gaomugong/go-netdisk/models/form"
 	R "github.com/gaomugong/go-netdisk/render"
 	"github.com/gin-gonic/gin"
 	"log"
-	"mime/multipart"
-	"net/http"
 	"os"
 	"strings"
 )
 
-type PageParam struct {
-	Puuid           string `form:"puuid"`
-	Name            string `form:"name"`
-	Page            int    `form:"page"`
-	PageSize        int    `form:"pageSize"`
-	OrderCreateTime string `form:"orderCreateTime"`
-}
-
-type BaseQueryParam struct {
-	UUID string `form:"uuid" binding:"required"`
-}
-
-type BasePostParam struct {
-	UserUUID string `form:"userUuid" binding:"required"`
-	Puuid    string `form:"puuid" binding:"required"`
-}
-
-type UploadParam struct {
-	BasePostParam
-	File *multipart.FileHeader `form:"file" binding:"required"`
-}
-
-type CreateDirParam struct {
-	BasePostParam
-	Name string `form:"name" binding:"required"`
-}
-
 // Get matter list with pagination
 // curl http://localhost:5000/api/matter/page/?page=1&pageSize=20&orderCreateTime=DESC&puuid=root&orderDir=DESC
 func PageHandler(c *gin.Context) {
-	var p PageParam
+	var p form.PageParam
 	if err := c.ShouldBindQuery(&p); err != nil {
 		R.FailWithError(c, err)
 		return
 	}
 
-	matters, totalItems, totalPages := db.GetAllMatters(p.Puuid, p.Name, p.Page, p.PageSize, p.OrderCreateTime)
+	matters, totalItems, totalPages := db.GetAllMatters(p.PUUID, p.Name, p.Page, p.PageSize, p.OrderCreateTime)
 	// log.Printf("%#v %d %d\n", p, totalItems, totalPages)
 	R.Ok(c, gin.H{
 		"totalPage":  totalPages,
@@ -60,7 +32,7 @@ func PageHandler(c *gin.Context) {
 
 // Delete matter file or directory
 func DeleteMatterHandler(c *gin.Context) {
-	var p BaseQueryParam
+	var p form.BaseQueryParam
 	if err := c.ShouldBind(&p); err != nil {
 		R.FailWithError(c, err)
 		return
@@ -77,7 +49,7 @@ func DeleteMatterHandler(c *gin.Context) {
 // Get matter detail info
 // curl http://localhost:5000/api/matter/get_detail/?uuid=5cfa8798-fe3e-4ffa-a0ba-b9afd88003f5
 func DetailHandler(c *gin.Context) {
-	var p BaseQueryParam
+	var p form.BaseQueryParam
 	if err := c.ShouldBind(&p); err != nil {
 		R.FailWithError(c, err)
 		return
@@ -92,11 +64,11 @@ func DetailHandler(c *gin.Context) {
 	// Add parent info
 	if matter.PUUID != cfg.MatterRootUUID {
 		parent, _ := db.GetMatterByUUID(matter.PUUID)
-		R.Ok(c, db.SubDirDetailMatter{Matter: matter, Parent: parent})
+		R.Ok(c, form.SubDirDetailMatter{Matter: matter, Parent: parent})
 		return
 	}
 
-	R.Ok(c, db.RootDirDetailMatter{Matter: matter, Parent: nil})
+	R.Ok(c, form.RootDirDetailMatter{Matter: matter, Parent: nil})
 }
 
 // Upload file to media dir
@@ -104,7 +76,7 @@ func DetailHandler(c *gin.Context) {
 //  -F "file=@/tmp/log.tar.gz" \
 //  -H "Content-Type: multipart/form-data"
 func UploadFileHandler(c *gin.Context) {
-	var p UploadParam
+	var p form.UploadParam
 	if err := c.ShouldBind(&p); err != nil {
 		R.FailWithError(c, err)
 		return
@@ -112,8 +84,8 @@ func UploadFileHandler(c *gin.Context) {
 
 	// Save file to local dir
 	parentDir := ""
-	if p.Puuid != cfg.MatterRootUUID {
-		if pDir, err := db.GetMatterByUUID(p.Puuid); err == nil {
+	if p.PUUID != cfg.MatterRootUUID {
+		if pDir, err := db.GetMatterByUUID(p.PUUID); err == nil {
 			parentDir = pDir.Path
 		}
 	}
@@ -125,18 +97,14 @@ func UploadFileHandler(c *gin.Context) {
 		return
 	}
 
-	username := c.GetString("username")
-	matter, err := db.CreateMatter(username, p.UserUUID, p.Puuid, filePath, p.File)
+	username := c.GetString("user")
+	matter, err := db.CreateMatter(username, p.UserUUID, p.PUUID, filePath, p.File)
 	if err != nil {
 		R.FailWithError(c, err)
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"result":  true,
-		"data":    matter,
-		"message": fmt.Sprintf("upload <%s> success", p.File.Filename),
-	})
+	R.OkWithMessage(c, matter, fmt.Sprintf("upload <%s> success", p.File.Filename))
 }
 
 // Download matter file as attachment
@@ -162,15 +130,15 @@ func DownloadFileHandler(c *gin.Context) {
 
 // Create matter dir
 func CreateDirectoryHandler(c *gin.Context) {
-	var p CreateDirParam
+	var p form.CreateDirParam
 	if err := c.ShouldBind(&p); err != nil {
 		R.FailWithError(c, err)
 	}
 
 	// Create dir in filesystem
 	parentDir := ""
-	if p.Puuid != cfg.MatterRootUUID {
-		if pDir, err := db.GetMatterByUUID(p.Puuid); err == nil {
+	if p.PUUID != cfg.MatterRootUUID {
+		if pDir, err := db.GetMatterByUUID(p.PUUID); err == nil {
 			parentDir = pDir.Path
 		}
 	}
@@ -182,7 +150,7 @@ func CreateDirectoryHandler(c *gin.Context) {
 	}
 
 	username := c.GetString("username")
-	matterDir, err := db.CreateDirectory(username, p.UserUUID, p.Puuid, path, p.Name)
+	matterDir, err := db.CreateDirectory(username, p.UserUUID, p.PUUID, path, p.Name)
 	if err != nil {
 		R.FailWithError(c, err)
 		return

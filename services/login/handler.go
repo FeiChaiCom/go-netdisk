@@ -4,6 +4,7 @@ import (
 	cfg "github.com/gaomugong/go-netdisk/config"
 	"github.com/gaomugong/go-netdisk/middleware"
 	"github.com/gaomugong/go-netdisk/models/db"
+	"github.com/gaomugong/go-netdisk/models/form"
 	R "github.com/gaomugong/go-netdisk/render"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
@@ -11,14 +12,9 @@ import (
 	"time"
 )
 
-type loginParam struct {
-	Username string `form:"username" json:"username"`
-	Password string `form:"password" json:"password"`
-}
-
 // curl http://localhost:5000/api/account/login/ -X POST -d '{"username": "miya", "password": "miya.12345"}'
 func AuthHandler(c *gin.Context) {
-	var p loginParam
+	var p form.LoginParam
 	if err := c.ShouldBind(&p); err != nil {
 		R.FailWithError(c, err)
 		return
