@@ -3,7 +3,10 @@ package db
 import (
 	"fmt"
 	cfg "github.com/gaomugong/go-netdisk/config"
+	uuid "github.com/satori/go.uuid"
+	"gorm.io/gorm"
 	"math"
+	"mime/multipart"
 	"time"
 )
 
@@ -32,9 +35,60 @@ func init() {
 	// cfg.DB.AutoMigrate(&Matter{})
 }
 
+func (m *Matter) BeforeCreate(*gorm.DB) (err error) {
+	var user User
+	cfg.DB.First(&user, "uuid = ?", m.UserUUID)
+
+	m.UserName = user.Username
+	m.UUID = uuid.NewV4().String()
+	m.CreateTime = time.Now()
+	m.UpdateTime = time.Now()
+	return nil
+}
+
+func CreateDirectory(userUUID, puuid, dirName string) (matter *Matter, err error) {
+	matter = &Matter{
+		UserUUID: userUUID,
+		PUUID:    puuid,
+		Name:     dirName,
+		Dir:      true,
+		Size:     0,
+		File:     "",
+		Path:     "",
+		Times:    0,
+	}
+	err = cfg.DB.Create(&matter).Error
+	return
+}
+
+func CreateMatter(userUUID, puuid, filePath string, file *multipart.FileHeader) (matter *Matter, err error) {
+	matter = &Matter{
+		UserUUID: userUUID,
+		PUUID:    puuid,
+		Name:     file.Filename,
+		Size:     int(file.Size),
+		File:     filePath,
+		Path:     filePath,
+		Times:    0,
+	}
+	err = cfg.DB.Create(matter).Error
+	return
+}
+
+// Get matter record by uuid
+func GetMatterByUUID(uuid string) (matter *Matter, err error) {
+	err = cfg.DB.First(&matter, "uuid = ?", uuid).Error
+	return
+}
+
+// Get all matters with pagination
 func GetAllMatters(puuid string, name string, page int, pageSize int, order string) (matters []*Matter, totalItems int64, totalPage int) {
 	// cfg.DB.Model(&Matter{}).Where(Matter{PUUID: puuid}).Count(&totalItems)
-	tx := cfg.DB.Model(&Matter{}).Where("puuid = ?", puuid)
+	tx := cfg.DB.Model(&Matter{})
+
+	if puuid != "" {
+		tx = tx.Where("puuid = ?", puuid)
+	}
 
 	if name != "" {
 		tx = tx.Where("name LIKE ?", fmt.Sprintf("%s%s%s", "%", name, "%"))

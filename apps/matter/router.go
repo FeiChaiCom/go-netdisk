@@ -11,7 +11,9 @@ func RegisterMatterGroup(rg *gin.RouterGroup) {
 	users.Use(middleware.JWTLoginRequired())
 
 	users.GET("page/", PageHandler)
-	users.POST("test_upload/", testUploadFile)
-	users.GET("test_get_file/", testGetFile)
+	users.GET("get_detail/", DetailHandler)
+	users.POST("upload/", UploadFileHandler)
+	users.POST("create_directory/", CreateDirectoryHandler)
+	users.GET("/:uuid/download/", testGetFile)
 
 }

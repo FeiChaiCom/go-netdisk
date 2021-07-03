@@ -16,6 +16,7 @@ type JWT struct {
 
 type MyClaims struct {
 	jwt.StandardClaims
+	UUID     string
 	Username string
 	Password string
 }
