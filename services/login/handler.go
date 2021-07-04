@@ -11,6 +11,14 @@ import (
 	"time"
 )
 
+// After login, update login ip and time
+func AfterLoginSuccess(c *gin.Context, u *db.User) error {
+	u.UpdateTime = time.Now()
+	u.LastTime = time.Now()
+	u.LastIP = c.GetHeader("X-Forwarded-For")
+	return cfg.DB.Save(u).Error
+}
+
 // curl http://localhost:5000/api/account/login/ -X POST -d '{"username": "miya", "password": "miya.12345"}'
 func JwtLoginHandler(c *gin.Context) {
 	var p *db.LoginParam
@@ -50,6 +58,9 @@ func JwtLoginHandler(c *gin.Context) {
 		"accessToken": token,
 		"ExpiresAt":   claims.StandardClaims.ExpiresAt * 1000,
 	})
+
+	// TODO: Login hook
+	_ = AfterLoginSuccess(c, u)
 }
 
 // curl http://localhost:5000/api/account/register/ -X POST -d '{"username": "miya", "password": "miya.12345"}'
