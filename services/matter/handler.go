@@ -130,7 +130,6 @@ func DownloadFileHandler(c *gin.Context) {
 	// Increment download times
 	matter.Times++
 	cfg.DB.Save(matter)
-
 }
 
 // Create matter dir
