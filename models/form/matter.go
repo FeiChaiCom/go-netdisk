@@ -1,7 +1,7 @@
 package form
 
 import (
-	"github.com/gaomugong/go-netdisk/models/db"
+	"go-netdisk/models/db"
 	"mime/multipart"
 )
 

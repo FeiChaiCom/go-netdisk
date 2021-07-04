@@ -1,7 +1,7 @@
 package db
 
 import (
-	cfg "github.com/gaomugong/go-netdisk/config"
+	cfg "go-netdisk/config"
 	"time"
 )
 

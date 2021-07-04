@@ -1,10 +1,10 @@
 package user
 
 import (
-	"github.com/gaomugong/go-netdisk/models/db"
-	"github.com/gaomugong/go-netdisk/models/form"
-	R "github.com/gaomugong/go-netdisk/render"
 	"github.com/gin-gonic/gin"
+	"go-netdisk/models/db"
+	"go-netdisk/models/form"
+	R "go-netdisk/render"
 )
 
 // curl http://localhost:5000/api/user/page/?page=1&pageSize=20&orderCreateTime=DESC

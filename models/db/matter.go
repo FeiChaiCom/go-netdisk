@@ -2,8 +2,8 @@ package db
 
 import (
 	"fmt"
-	cfg "github.com/gaomugong/go-netdisk/config"
 	uuid "github.com/satori/go.uuid"
+	cfg "go-netdisk/config"
 	"gorm.io/gorm"
 	"math"
 	"mime/multipart"

@@ -1,8 +1,8 @@
 package permission
 
 import (
-	"github.com/gaomugong/go-netdisk/middleware"
 	"github.com/gin-gonic/gin"
+	"go-netdisk/middleware"
 )
 
 // Add permission apis to api group
