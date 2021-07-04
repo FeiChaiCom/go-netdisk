@@ -24,6 +24,13 @@ func AfterLoginSuccess(c *gin.Context, u *db.User) error {
 	}).Error
 }
 
+// Fake logout to clean cookie
+func JwtLogoutHandler(c *gin.Context) {
+	// Delete cookie
+	c.SetCookie(cfg.AuthCookieName, "", -1, "/", "", false, true)
+	R.OkOnly(c)
+}
+
 // curl http://localhost:5000/api/account/login/ -X POST -d '{"username": "miya", "password": "miya.12345"}'
 func JwtLoginHandler(c *gin.Context) {
 	var p *db.LoginParam
