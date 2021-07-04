@@ -1,12 +1,12 @@
 package login
 
 import (
-	cfg "github.com/gaomugong/go-netdisk/config"
-	"github.com/gaomugong/go-netdisk/middleware"
-	"github.com/gaomugong/go-netdisk/models/db"
-	R "github.com/gaomugong/go-netdisk/render"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
+	cfg "go-netdisk/config"
+	"go-netdisk/middleware"
+	"go-netdisk/models/db"
+	R "go-netdisk/render"
 	"net/http"
 	"time"
 )

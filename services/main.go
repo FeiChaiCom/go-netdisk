@@ -2,16 +2,16 @@ package services
 
 import (
 	"fmt"
-	cfg "github.com/gaomugong/go-netdisk/config"
-	"github.com/gaomugong/go-netdisk/middleware"
-	"github.com/gaomugong/go-netdisk/services/demo"
-	"github.com/gaomugong/go-netdisk/services/login"
-	"github.com/gaomugong/go-netdisk/services/matter"
-	"github.com/gaomugong/go-netdisk/services/monitor"
-	"github.com/gaomugong/go-netdisk/services/permission"
-	"github.com/gaomugong/go-netdisk/services/preference"
-	"github.com/gaomugong/go-netdisk/services/user"
 	"github.com/gin-gonic/gin"
+	cfg "go-netdisk/config"
+	"go-netdisk/middleware"
+	"go-netdisk/services/demo"
+	"go-netdisk/services/login"
+	"go-netdisk/services/matter"
+	"go-netdisk/services/monitor"
+	"go-netdisk/services/permission"
+	"go-netdisk/services/preference"
+	"go-netdisk/services/user"
 	"net/http"
 )
 

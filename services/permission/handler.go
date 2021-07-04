@@ -2,10 +2,10 @@ package permission
 
 import (
 	"errors"
-	cfg "github.com/gaomugong/go-netdisk/config"
-	"github.com/gaomugong/go-netdisk/models/db"
-	R "github.com/gaomugong/go-netdisk/render"
 	"github.com/gin-gonic/gin"
+	cfg "go-netdisk/config"
+	"go-netdisk/models/db"
+	R "go-netdisk/render"
 	"gorm.io/gorm"
 )
 

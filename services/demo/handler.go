@@ -3,9 +3,9 @@ package demo
 import (
 	"encoding/json"
 	"fmt"
-	cfg "github.com/gaomugong/go-netdisk/config"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator"
+	cfg "go-netdisk/config"
 	"log"
 	"net/http"
 	"strings"
