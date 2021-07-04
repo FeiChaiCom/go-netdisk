@@ -126,6 +126,11 @@ func DownloadFileHandler(c *gin.Context) {
 	realPath := cfg.MatterRoot + matter.File
 	c.FileAttachment(realPath, name)
 	// c.File(matter.Path)
+
+	// Increment download times
+	matter.Times++
+	cfg.DB.Save(matter)
+
 }
 
 // Create matter dir
