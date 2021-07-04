@@ -104,6 +104,7 @@ func GetAllUsers(page int, pageSize int, order string) (users []*User, totalItem
 	return
 }
 
+// Register a new user with username and password
 func Register(r *RegisterParam) (user *User, err error) {
 	user, err = GetUserByName(r.Username)
 	if !errors.Is(err, gorm.ErrRecordNotFound) {
@@ -125,14 +126,17 @@ func Register(r *RegisterParam) (user *User, err error) {
 	return
 }
 
+// Login check user exist and password match username
 func Login(p *LoginParam) (u *User, err error) {
 	if u, err = GetUserByName(p.Username); err != nil {
 		return u, errors.New("invalid user")
 	}
 
-	if isValid, err := unchained.CheckPassword(p.Password, u.Password); err != nil || !isValid {
+	isValid, err := unchained.CheckPassword(p.Password, u.Password)
+	if err != nil || !isValid {
 		return u, errors.New("invalid user or password")
 	}
 
+	// log.Printf("check password: %s vs %#v -> %#v, %#v", p.Password, u.Password, isValid, err)
 	return
 }
