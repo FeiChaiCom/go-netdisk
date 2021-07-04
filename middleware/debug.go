@@ -17,14 +17,6 @@ func RequestDebugLogger() gin.HandlerFunc {
 		body, _ := ioutil.ReadAll(tee)
 		c.Request.Body = ioutil.NopCloser(&buf)
 
-		// log.Printf("\n" +
-		// 	"FullPath:\t%s\n" +
-		// 	"Form:\t%s\n" +
-		// 	"PostForm:\t%s\n",
-		// 	c.FullPath(),
-		// 	utils.PrettyJson(c.Request.Form),
-		// 	utils.PrettyJson(c.Request.PostForm),
-		// )
 		log.Println(string(body))
 		log.Println(utils.PrettyJson(c.Request.Header))
 
