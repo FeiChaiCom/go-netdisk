@@ -110,11 +110,7 @@ func Register(u User) (user *User, err error) {
 		return user, ErrUserExist
 	}
 
-	// h := md5.New()
-	// h.Write([]byte(u.Password))
-	// u.Password = hex.EncodeToString(h.Sum(nil))
-
-	u.Password, err = unchained.MakePassword(u.Password, unchained.GetRandomString(12), unchained.Argon2Hasher)
+	u.Password, err = unchained.MakePassword(u.Password, "", unchained.Argon2Hasher)
 	if err != nil {
 		errMsg := fmt.Sprintf("register failed: create password error, %s", err.Error())
 		return user, errors.New(errMsg)
