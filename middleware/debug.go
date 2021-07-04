@@ -2,7 +2,6 @@ package middleware
 
 import (
 	"bytes"
-	"github.com/gaomugong/go-netdisk/utils"
 	"github.com/gin-gonic/gin"
 	"io"
 	"io/ioutil"
@@ -23,7 +22,7 @@ func RequestDebugLogger() gin.HandlerFunc {
 			maxDebug = len(body)
 		}
 		log.Println(string(body[:maxDebug]))
-		log.Println(utils.PrettyJson(c.Request.Header))
+		// log.Println(utils.PrettyJson(c.Request.Header))
 
 		c.Next()
 	}

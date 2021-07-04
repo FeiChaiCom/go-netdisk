@@ -11,7 +11,7 @@ import (
 func FetchHandler(c *gin.Context) {
 	var p db.Preference
 	if err := cfg.DB.First(&p).Error; err != nil {
-		R.FailWithError(c, err)
+		R.Error(c, err)
 	}
 	R.Ok(c, p)
 }
