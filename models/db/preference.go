@@ -29,7 +29,7 @@ func init() {
 }
 
 // Get preference record by uuid
-func GetByUUID(uuid string) (matter *Matter, err error) {
-	err = cfg.DB.First(&matter, "uuid = ?", uuid).Error
+func GetPreferenceByUUID(uuid string) (prefer *Preference, err error) {
+	err = cfg.DB.First(&prefer, "uuid = ?", uuid).Error
 	return
 }

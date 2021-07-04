@@ -6,8 +6,8 @@ import (
 
 // Add preference apis to api group
 func RegisterPreferenceGroup(rg *gin.RouterGroup) {
-	users := rg.Group("/preference/")
+	preferences := rg.Group("/preference/")
 	{
-		users.POST("fetch/", FetchHandler)
+		preferences.POST("fetch/", FetchHandler)
 	}
 }
