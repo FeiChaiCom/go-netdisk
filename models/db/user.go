@@ -15,23 +15,24 @@ type User struct {
 	UUID           uuid.UUID `gorm:"column:uuid;primaryKey;type:varchar(36)" json:"uuid"`
 	Username       string    `gorm:"column:username;type:varchar(45) not null;unique" json:"username"`
 	Password       string    `gorm:"column:password;type:varchar(255) not null" json:"-"`
-	IsSuperUser    bool      `gorm:"column:is_superuser;default:false" json:"-"`
-	IsStaff        bool      `gorm:"column:is_staff;default:false" json:"-"`
-	IsActive       bool      `gorm:"column:is_active;default:false" json:"-"`
-	FirstName      string    `gorm:"column:first_name;type:varchar(30);default:''"`
-	LastName       string    `gorm:"column:last_name;type:varchar(150);default:''"`
-	Email          string    `gorm:"column:email;default:''"`
 	Role           string    `gorm:"column:role;type:varchar(45);default:USER" json:"role"`
 	Status         string    `gorm:"column:status;not null;default:OK" json:"status"`
 	SizeLimit      int64     `gorm:"column:size_limit;not null;default:268435456" json:"sizeLimit"`
 	TotalSizeLimit int64     `gorm:"column:total_size_limit;not null;default:-1" json:"totalSizeLimit"`
 	TotalSize      int64     `gorm:"column:total_size;not null;default:0" json:"totalSize"`
-	AvatarURL      string    `gorm:"column:avatar_url;type:varchar(255)" json:"avatarUrl"`
 	UpdateTime     time.Time `gorm:"column:update_time;not null" json:"updateTime"`
 	CreateTime     time.Time `gorm:"column:create_time;not null" json:"createTime"`
 	LastTime       time.Time `gorm:"column:last_time;default:null" json:"lastTime"`
-	DateJoined     time.Time `gorm:"column:date_joined;default:null" json:"dateJoined"`
 	LastIP         string    `gorm:"column:last_ip;type:varchar(128)" json:"lastIp"`
+	// Django specific user column
+	DateJoined  time.Time `gorm:"column:date_joined;default:null" json:"-"`
+	AvatarURL   string    `gorm:"column:avatar_url;type:varchar(255)" json:"-"`
+	IsSuperUser bool      `gorm:"column:is_superuser;default:false" json:"-"`
+	IsStaff     bool      `gorm:"column:is_staff;default:false" json:"-"`
+	IsActive    bool      `gorm:"column:is_active;default:false" json:"-"`
+	FirstName   string    `gorm:"column:first_name;type:varchar(30);default:''" json:"-"`
+	LastName    string    `gorm:"column:last_name;type:varchar(150);default:''" json:"-"`
+	Email       string    `gorm:"column:email;default:''" json:"-"`
 }
 
 type LoginParam struct {
