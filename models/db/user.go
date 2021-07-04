@@ -29,7 +29,7 @@ type User struct {
 	AvatarURL   string    `gorm:"column:avatar_url;type:varchar(255)" json:"-"`
 	IsSuperUser bool      `gorm:"column:is_superuser;default:false" json:"-"`
 	IsStaff     bool      `gorm:"column:is_staff;default:false" json:"-"`
-	IsActive    bool      `gorm:"column:is_active;default:false" json:"-"`
+	IsActive    bool      `gorm:"column:is_active;default:false" json:"isActive"`
 	FirstName   string    `gorm:"column:first_name;type:varchar(30);default:''" json:"-"`
 	LastName    string    `gorm:"column:last_name;type:varchar(150);default:''" json:"-"`
 	Email       string    `gorm:"column:email;default:''" json:"-"`
