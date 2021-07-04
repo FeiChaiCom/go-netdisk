@@ -104,21 +104,25 @@ func GetAllUsers(page int, pageSize int, order string) (users []*User, totalItem
 	return
 }
 
-func Register(u User) (user *User, err error) {
-	err = cfg.DB.Where("username = ?", u.Username).First(&user).Error
+func Register(r *RegisterParam) (user *User, err error) {
+	user, err = GetUserByName(r.Username)
 	if !errors.Is(err, gorm.ErrRecordNotFound) {
 		return user, ErrUserExist
 	}
 
-	u.Password, err = unchained.MakePassword(u.Password, "", unchained.Argon2Hasher)
+	password, err := unchained.MakePassword(r.Password, "", unchained.Argon2Hasher)
 	if err != nil {
 		errMsg := fmt.Sprintf("register failed: create password error, %s", err.Error())
 		return user, errors.New(errMsg)
 	}
 
-	err = cfg.DB.Create(&u).Error
+	user = &User{
+		Username: r.Username,
+		Password: password,
+	}
+	err = cfg.DB.Create(user).Error
 
-	return user, err
+	return
 }
 
 func Login(p *LoginParam) (u *User, err error) {
