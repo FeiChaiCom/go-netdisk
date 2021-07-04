@@ -54,16 +54,17 @@ func JwtLoginHandler(c *gin.Context) {
 
 // curl http://localhost:5000/api/account/register/ -X POST -d '{"username": "miya", "password": "miya.12345"}'
 func RegisterHandler(c *gin.Context) {
-	var r db.RegisterParam
+	var r *db.RegisterParam
 
-	_ = c.ShouldBindJSON(&r)
-	user := db.User{Username: r.Username, Password: r.Password}
-	newUser, err := db.Register(user)
+	if err := c.ShouldBindJSON(&r); err != nil {
+		R.FailWithError(c, err)
+	}
 
+	user, err := db.Register(r)
 	if err != nil {
 		R.FailWithError(c, err)
 		return
 	}
 
-	R.Ok(c, newUser)
+	R.Ok(c, user)
 }
