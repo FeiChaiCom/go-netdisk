@@ -17,7 +17,7 @@ import (
 func PageHandler(c *gin.Context) {
 	var p form.PageParam
 	if err := c.ShouldBindQuery(&p); err != nil {
-		R.FailWithError(c, err)
+		R.Error(c, err)
 		return
 	}
 
@@ -34,12 +34,12 @@ func PageHandler(c *gin.Context) {
 func DeleteMatterHandler(c *gin.Context) {
 	var p form.BaseQueryParam
 	if err := c.ShouldBind(&p); err != nil {
-		R.FailWithError(c, err)
+		R.Error(c, err)
 		return
 	}
 
 	if err := db.DeleteMatterByUUID(p.UUID); err != nil {
-		R.FailWithError(c, err)
+		R.Error(c, err)
 		return
 	}
 
@@ -51,13 +51,13 @@ func DeleteMatterHandler(c *gin.Context) {
 func DetailHandler(c *gin.Context) {
 	var p form.BaseQueryParam
 	if err := c.ShouldBind(&p); err != nil {
-		R.FailWithError(c, err)
+		R.Error(c, err)
 		return
 	}
 
 	matter, err := db.GetMatterByUUID(p.UUID)
 	if err != nil {
-		R.FailWithError(c, err)
+		R.Error(c, err)
 		return
 	}
 
@@ -78,7 +78,7 @@ func DetailHandler(c *gin.Context) {
 func UploadFileHandler(c *gin.Context) {
 	var p form.UploadParam
 	if err := c.ShouldBind(&p); err != nil {
-		R.FailWithError(c, err)
+		R.Error(c, err)
 		return
 	}
 
@@ -93,18 +93,18 @@ func UploadFileHandler(c *gin.Context) {
 	filePath := parentDir + "/" + p.File.Filename
 	realFilePath := strings.Join([]string{cfg.MatterRoot, filePath}, "/")
 	if err := c.SaveUploadedFile(p.File, realFilePath); err != nil {
-		R.FailWithError(c, err)
+		R.Error(c, err)
 		return
 	}
 
 	username := c.GetString("username")
 	matter, err := db.CreateMatter(username, p.UserUUID, p.PUUID, filePath, p.File)
 	if err != nil {
-		R.FailWithError(c, err)
+		R.Error(c, err)
 		return
 	}
 
-	R.OkWithMessage(c, matter, fmt.Sprintf("upload <%s> success", p.File.Filename))
+	R.OkWithMsg(c, matter, fmt.Sprintf("upload <%s> success", p.File.Filename))
 }
 
 // Download matter file as attachment
@@ -115,7 +115,7 @@ func DownloadFileHandler(c *gin.Context) {
 
 	matter, err := db.GetMatterByUUID(matterUUID)
 	if err != nil {
-		R.FailWithError(c, err)
+		R.Error(c, err)
 		return
 	}
 
@@ -136,7 +136,7 @@ func DownloadFileHandler(c *gin.Context) {
 func CreateDirectoryHandler(c *gin.Context) {
 	var p form.CreateDirParam
 	if err := c.ShouldBind(&p); err != nil {
-		R.FailWithError(c, err)
+		R.Error(c, err)
 	}
 
 	// Create dir in filesystem
@@ -156,9 +156,9 @@ func CreateDirectoryHandler(c *gin.Context) {
 	username := c.GetString("username")
 	matterDir, err := db.CreateDirectory(username, p.UserUUID, p.PUUID, path, p.Name)
 	if err != nil {
-		R.FailWithError(c, err)
+		R.Error(c, err)
 		return
 	}
 
-	R.OkWithMessage(c, matterDir, fmt.Sprintf("create dir <%s> success", matterDir.Name))
+	R.OkWithMsg(c, matterDir, fmt.Sprintf("create dir <%s> success", matterDir.Name))
 }

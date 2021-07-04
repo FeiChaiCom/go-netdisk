@@ -11,7 +11,7 @@ import (
 func PageHandler(c *gin.Context) {
 	var p form.UserParam
 	if err := c.ShouldBindQuery(&p); err != nil {
-		R.FailWithError(c, err)
+		R.Error(c, err)
 		return
 	}
 

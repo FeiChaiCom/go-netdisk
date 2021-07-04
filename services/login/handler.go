@@ -13,24 +13,29 @@ import (
 
 // After login, update login ip and time
 func AfterLoginSuccess(c *gin.Context, u *db.User) error {
-	u.UpdateTime = time.Now()
-	u.LastTime = time.Now()
-	u.LastIP = c.GetHeader("X-Forwarded-For")
-	return cfg.DB.Save(u).Error
+	// u.UpdateTime = time.Now()
+	// u.LastTime = time.Now()
+	// u.LastIP = c.GetHeader("X-Forwarded-For")
+	// return cfg.DB.Save(u).Error
+	return cfg.DB.Model(&db.User{}).Where("username = ?", u.Username).Updates(db.User{
+		UpdateTime: time.Now(),
+		LastTime:   time.Now(),
+		LastIP:     c.GetHeader("X-Forwarded-For"),
+	}).Error
 }
 
 // curl http://localhost:5000/api/account/login/ -X POST -d '{"username": "miya", "password": "miya.12345"}'
 func JwtLoginHandler(c *gin.Context) {
 	var p *db.LoginParam
 	if err := c.ShouldBind(&p); err != nil {
-		R.FailWithError(c, err)
+		R.Error(c, err)
 		return
 	}
 
 	// Verify username & password and login
 	u, err := db.Login(p)
 	if err != nil {
-		R.FailWithError(c, err)
+		R.Error(c, err)
 		return
 	}
 
@@ -68,12 +73,12 @@ func RegisterHandler(c *gin.Context) {
 	var r *db.RegisterParam
 
 	if err := c.ShouldBindJSON(&r); err != nil {
-		R.FailWithError(c, err)
+		R.Error(c, err)
 	}
 
 	user, err := db.Register(r)
 	if err != nil {
-		R.FailWithError(c, err)
+		R.Error(c, err)
 		return
 	}
 

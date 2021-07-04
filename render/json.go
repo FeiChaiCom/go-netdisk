@@ -26,7 +26,7 @@ type Response struct {
 	Result  bool        `json:"result"`
 	Data    interface{} `json:"data"`
 	Code    ErrCode     `json:"code"`
-	Message string      `json:"message"`
+	Message string      `json:"msg"`
 }
 
 func JSONResponse(c *gin.Context, r *Response) {
@@ -52,7 +52,16 @@ func Ok(c *gin.Context, data interface{}) {
 	})
 }
 
-func OkWithMessage(c *gin.Context, data interface{}, message string) {
+func OkOnly(c *gin.Context) {
+	JSONResponse(c, &Response{
+		Code:    Success,
+		Result:  true,
+		Data:    nil,
+		Message: "success",
+	})
+}
+
+func OkWithMsg(c *gin.Context, data interface{}, message string) {
 	JSONResponse(c, &Response{
 		Code:    Success,
 		Result:  true,
@@ -79,7 +88,7 @@ func FailWithCode(c *gin.Context, message string, code ErrCode) {
 	})
 }
 
-func FailWithError(c *gin.Context, err error) {
+func Error(c *gin.Context, err error) {
 	JSONResponse(c, &Response{
 		Code:    Failure,
 		Result:  false,
