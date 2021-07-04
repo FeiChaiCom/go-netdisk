@@ -8,6 +8,7 @@ import (
 	"github.com/gaomugong/go-netdisk/services/login"
 	"github.com/gaomugong/go-netdisk/services/matter"
 	"github.com/gaomugong/go-netdisk/services/monitor"
+	"github.com/gaomugong/go-netdisk/services/permission"
 	"github.com/gaomugong/go-netdisk/services/preference"
 	"github.com/gaomugong/go-netdisk/services/user"
 	"github.com/gin-gonic/gin"
@@ -21,6 +22,7 @@ var registers = []Register{
 	user.RegisterUserGroup,
 	matter.RegisterMatterGroup,
 	preference.RegisterPreferenceGroup,
+	permission.RegisterPermissionGroup,
 	monitor.RegisterMonitorGroup,
 	demo.RegisterTestGroup,
 }
