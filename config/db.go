@@ -6,7 +6,7 @@ import (
 	"gorm.io/gorm/logger"
 )
 
-const MysqlDsn = "root:root@tcp(localhost:3306)/tank?charset=utf8mb4&parseTime=True&loc=Local"
+const MysqlDsn = "root:88888888@tcp(localhost:3306)/tank?charset=utf8mb4&parseTime=True&loc=Local"
 
 var DB *gorm.DB
 

@@ -41,8 +41,11 @@ func main() {
 
 	// _ = router.Run(fmt.Sprintf(":%d", cfg.Port))
 	srv := &http.Server{
-		Addr:    fmt.Sprintf(":%d", cfg.Port),
-		Handler: router,
+		Addr:           fmt.Sprintf(":%d", cfg.Port),
+		Handler:        router,
+		ReadTimeout:    10 * time.Second,
+		WriteTimeout:   30 * time.Second,
+		MaxHeaderBytes: 1 << 20, // 1MB
 	}
 
 	// Initializing the server in a goroutine so that it won't block the graceful shutdown handling below
@@ -86,5 +89,9 @@ func init() {
 		if err = os.Mkdir(cfg.MatterRoot, 0755); err != nil {
 			panic(err)
 		}
+	}
+
+	if !cfg.DebugOn {
+		gin.SetMode(gin.ReleaseMode)
 	}
 }
