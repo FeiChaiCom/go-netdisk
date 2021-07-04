@@ -1,10 +1,9 @@
 package db
 
 import (
-	"crypto/md5"
-	"encoding/hex"
 	"errors"
 	"fmt"
+	"github.com/alexandrevicenzi/unchained"
 	cfg "github.com/gaomugong/go-netdisk/config"
 	"github.com/satori/go.uuid"
 	"gorm.io/gorm"
@@ -35,6 +34,15 @@ type User struct {
 	LastIP         string    `gorm:"column:last_ip;type:varchar(128)" json:"lastIp"`
 }
 
+type LoginParam struct {
+	Username string `form:"username" json:"username" binding:"required"`
+	Password string `form:"password" json:"password" binding:"required"`
+}
+
+type RegisterParam struct {
+	LoginParam
+}
+
 func (User) TableName() string {
 	return "accounts_user"
 }
@@ -54,20 +62,12 @@ func init() {
 
 var ErrUserExist = errors.New("username is registered, please replace another one")
 
-func Login(u *User) (user *User, err error) {
-	h := md5.New()
-	h.Write([]byte(u.Password))
-	u.Password = hex.EncodeToString(h.Sum(nil))
-	err = cfg.DB.Where("username = ? AND password = ?", u.Username, u.Password).First(&user).Error
-	return user, err
-}
-
 func GetUserByUUID(uuid string) (user *User, err error) {
 	err = cfg.DB.First(&user, "uuid = ?", uuid).Error
 	return
 }
 
-func FindUserByName(username string) (user *User, err error) {
+func GetUserByName(username string) (user *User, err error) {
 	err = cfg.DB.Where("username = ?", username).First(&user).Error
 	return
 }
@@ -104,16 +104,35 @@ func GetAllUsers(page int, pageSize int, order string) (users []*User, totalItem
 	return
 }
 
-func Register(u User) (user User, err error) {
+func Register(u User) (user *User, err error) {
 	err = cfg.DB.Where("username = ?", u.Username).First(&user).Error
 	if !errors.Is(err, gorm.ErrRecordNotFound) {
 		return user, ErrUserExist
 	}
 
-	h := md5.New()
-	h.Write([]byte(u.Password))
-	u.Password = hex.EncodeToString(h.Sum(nil))
+	// h := md5.New()
+	// h.Write([]byte(u.Password))
+	// u.Password = hex.EncodeToString(h.Sum(nil))
+
+	u.Password, err = unchained.MakePassword(u.Password, unchained.GetRandomString(12), unchained.Argon2Hasher)
+	if err != nil {
+		errMsg := fmt.Sprintf("register failed: create password error, %s", err.Error())
+		return user, errors.New(errMsg)
+	}
+
 	err = cfg.DB.Create(&u).Error
 
 	return user, err
+}
+
+func Login(p *LoginParam) (u *User, err error) {
+	if u, err = GetUserByName(p.Username); err != nil {
+		return u, errors.New("invalid user")
+	}
+
+	if isValid, err := unchained.CheckPassword(p.Password, u.Password); err != nil || !isValid {
+		return u, errors.New("invalid user or password")
+	}
+
+	return
 }
