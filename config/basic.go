@@ -2,6 +2,7 @@ package config
 
 const (
 	Port               = 5000
+	DebugOn            = false
 	JwtIssuer          = "FEICHAI.COM"
 	JwtSecretKey       = "feichaicom"
 	AuthCookieName     = "auth_token"

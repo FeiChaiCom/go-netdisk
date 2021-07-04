@@ -1,12 +1,18 @@
 package render
 
 import (
+	cfg "github.com/gaomugong/go-netdisk/config"
+	"github.com/gaomugong/go-netdisk/utils"
 	"github.com/gin-gonic/gin"
+	"log"
 	"net/http"
 )
 
+// ErrCode
+type ErrCode int
+
 const (
-	Success = iota
+	Success ErrCode = iota
 	Failure
 	ValidateError
 	NotFoundError
@@ -19,11 +25,21 @@ const (
 type Response struct {
 	Result  bool        `json:"result"`
 	Data    interface{} `json:"data"`
-	Code    int         `json:"code"`
+	Code    ErrCode     `json:"code"`
 	Message string      `json:"message"`
 }
 
 func JSONResponse(c *gin.Context, r *Response) {
+	// Log response data for debug
+	if cfg.DebugOn {
+		log.Printf("---------------------\n"+
+			"FullPath:\t%s\n",
+			c.FullPath(),
+		)
+
+		log.Println(utils.PrettyJson(r))
+	}
+
 	c.JSON(http.StatusOK, r)
 }
 
@@ -54,7 +70,7 @@ func Fail(c *gin.Context, message string) {
 	})
 }
 
-func FailWithCode(c *gin.Context, message string, code int) {
+func FailWithCode(c *gin.Context, message string, code ErrCode) {
 	JSONResponse(c, &Response{
 		Code:    code,
 		Result:  false,
