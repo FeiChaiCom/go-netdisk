@@ -2,11 +2,11 @@ package matter
 
 import (
 	"fmt"
-	cfg "github.com/gaomugong/go-netdisk/config"
-	"github.com/gaomugong/go-netdisk/models/db"
-	"github.com/gaomugong/go-netdisk/models/form"
-	R "github.com/gaomugong/go-netdisk/render"
 	"github.com/gin-gonic/gin"
+	cfg "go-netdisk/config"
+	"go-netdisk/models/db"
+	"go-netdisk/models/form"
+	R "go-netdisk/render"
 	"log"
 	"os"
 	"strings"

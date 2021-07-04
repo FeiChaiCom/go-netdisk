@@ -1,8 +1,8 @@
 package matter
 
 import (
-	"github.com/gaomugong/go-netdisk/middleware"
 	"github.com/gin-gonic/gin"
+	"go-netdisk/middleware"
 )
 
 // Add matter apis to api group

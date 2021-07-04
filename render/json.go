@@ -1,9 +1,9 @@
 package render
 
 import (
-	cfg "github.com/gaomugong/go-netdisk/config"
-	"github.com/gaomugong/go-netdisk/utils"
 	"github.com/gin-gonic/gin"
+	cfg "go-netdisk/config"
+	"go-netdisk/utils"
 	"log"
 	"net/http"
 )

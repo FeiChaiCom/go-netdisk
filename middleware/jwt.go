@@ -2,10 +2,10 @@ package middleware
 
 import (
 	"errors"
-	cfg "github.com/gaomugong/go-netdisk/config"
-	"github.com/gaomugong/go-netdisk/models/db"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
+	cfg "go-netdisk/config"
+	"go-netdisk/models/db"
 	"log"
 	"net/http"
 )

@@ -1,8 +1,8 @@
 package user
 
 import (
-	"github.com/gaomugong/go-netdisk/middleware"
 	"github.com/gin-gonic/gin"
+	"go-netdisk/middleware"
 )
 
 // Add user apis to api group
