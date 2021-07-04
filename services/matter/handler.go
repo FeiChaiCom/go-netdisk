@@ -21,8 +21,8 @@ func PageHandler(c *gin.Context) {
 		return
 	}
 
-	matters, totalItems, totalPages := db.GetAllMatters(p.PUUID, p.Name, p.Page, p.PageSize, p.OrderCreateTime)
-	// log.Printf("%#v %d %d\n", p, totalItems, totalPages)
+	username := c.GetString("username")
+	matters, totalItems, totalPages := db.GetAllMatters(username, p.PUUID, p.Name, p.Page, p.PageSize, p.OrderCreateTime)
 	R.Ok(c, gin.H{
 		"totalPage":  totalPages,
 		"totalItems": totalItems,
@@ -97,7 +97,7 @@ func UploadFileHandler(c *gin.Context) {
 		return
 	}
 
-	username := c.GetString("user")
+	username := c.GetString("username")
 	matter, err := db.CreateMatter(username, p.UserUUID, p.PUUID, filePath, p.File)
 	if err != nil {
 		R.FailWithError(c, err)
@@ -130,7 +130,6 @@ func DownloadFileHandler(c *gin.Context) {
 	// Increment download times
 	matter.Times++
 	cfg.DB.Save(matter)
-
 }
 
 // Create matter dir

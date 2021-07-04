@@ -106,9 +106,8 @@ func GetMatterByUUID(uuid string) (matter *Matter, err error) {
 }
 
 // Get all matters with pagination
-func GetAllMatters(puuid string, name string, page int, pageSize int, order string) (matters []*Matter, totalItems int64, totalPage int) {
-	// cfg.DB.Model(&Matter{}).Where(Matter{PUUID: puuid}).Count(&totalItems)
-	tx := cfg.DB.Model(&Matter{})
+func GetAllMatters(username, puuid, name string, page int, pageSize int, order string) (matters []*Matter, totalItems int64, totalPage int) {
+	tx := cfg.DB.Model(&Matter{}).Where("username = ?", username)
 
 	if puuid != "" {
 		tx = tx.Where("puuid = ?", puuid)

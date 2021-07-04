@@ -3,6 +3,7 @@ module github.com/gaomugong/go-netdisk
 go 1.16
 
 require (
+	github.com/alexandrevicenzi/unchained v1.3.0 // indirect
 	github.com/gin-gonic/gin v1.7.2
 	github.com/go-playground/validator v9.31.0+incompatible
 	github.com/golang-jwt/jwt v3.2.1+incompatible

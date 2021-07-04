@@ -3,6 +3,7 @@ package services
 import (
 	"fmt"
 	cfg "github.com/gaomugong/go-netdisk/config"
+	"github.com/gaomugong/go-netdisk/middleware"
 	"github.com/gaomugong/go-netdisk/services/demo"
 	"github.com/gaomugong/go-netdisk/services/login"
 	"github.com/gaomugong/go-netdisk/services/matter"
@@ -28,7 +29,10 @@ func InitAPIRouter() *gin.Engine {
 	// engine.Use(gin.Logger())
 	engine.Use(cfg.APILogger)
 	engine.Use(gin.Recovery())
-	// engine.Use(middleware.RequestDebugLogger())
+
+	if cfg.DebugOn {
+		engine.Use(middleware.RequestDebugLogger())
+	}
 
 	// Set a lower memory limit for multipart forms (default 32M)
 	engine.MaxMultipartMemory = 100 << 20 // 100MiB

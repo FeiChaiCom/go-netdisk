@@ -17,7 +17,12 @@ func RequestDebugLogger() gin.HandlerFunc {
 		body, _ := ioutil.ReadAll(tee)
 		c.Request.Body = ioutil.NopCloser(&buf)
 
-		log.Println(string(body))
+		// Strip too much log print such as file upload
+		maxDebug := 1000
+		if len(body) < 1000 {
+			maxDebug = len(body)
+		}
+		log.Println(string(body[:maxDebug]))
 		log.Println(utils.PrettyJson(c.Request.Header))
 
 		c.Next()

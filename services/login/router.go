@@ -8,7 +8,7 @@ import (
 func RegisterLoginGroup(rg *gin.RouterGroup) {
 	users := rg.Group("/account/")
 
-	users.POST("login/", AuthHandler)
+	users.POST("login/", JwtLoginHandler)
 	users.POST("register/", RegisterHandler)
 
 }
