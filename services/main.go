@@ -28,7 +28,7 @@ func InitAPIRouter() *gin.Engine {
 	// engine.Use(gin.Logger())
 	engine.Use(cfg.APILogger)
 	engine.Use(gin.Recovery())
-	// engine.Use(cfg.LoginRequiredMiddleware())
+	// engine.Use(middleware.RequestDebugLogger())
 
 	// Set a lower memory limit for multipart forms (default 32M)
 	engine.MaxMultipartMemory = 100 << 20 // 100MiB

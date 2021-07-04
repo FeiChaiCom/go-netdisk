@@ -10,13 +10,15 @@ const MysqlDsn = "root:root@tcp(localhost:3306)/tank?charset=utf8mb4&parseTime=T
 
 var DB *gorm.DB
 
-func InitDB() error {
-	if db, err := gorm.Open(mysql.Open(MysqlDsn), &gorm.Config{
-		Logger: logger.Default.LogMode(logger.Info),
-	}); err != nil {
-		return err
-	} else {
-		DB = db
+func InitDB() (err error) {
+	gormConfig := &gorm.Config{}
+	if DebugOn {
+		gormConfig.Logger = logger.Default.LogMode(logger.Info)
 	}
-	return nil
+
+	DB, err = gorm.Open(mysql.Open(MysqlDsn), gormConfig)
+	if err != nil {
+		return
+	}
+	return
 }
