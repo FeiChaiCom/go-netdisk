@@ -45,10 +45,6 @@ func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
 
-	// Load settings from config file or env
-	// cfg.LoadSettings("config")
-	// viper.Debug()
-
 	// Global init for gin: logger/runmode
 	InitGin()
 
@@ -58,11 +54,7 @@ func main() {
 	}
 
 	// Init url router for apis
-	router := services.InitAPIRouter()
-
-	// Init template and static files serve router
-	services.InitTemplateRouter(router)
-
+	router := services.InitRouter()
 	// _ = router.Run(fmt.Sprintf(":%d", cfg.Port))
 
 	// Stop gracefully

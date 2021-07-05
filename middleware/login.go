@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/parnurzeal/gorequest"
 	cfg "go-netdisk/config"
+	"log"
 	"net/http"
 	"os"
 	"strings"
@@ -39,12 +40,16 @@ func LoginRequired(c *gin.Context) {
 		// }
 
 		// Redirect to login page
-		appSubPath := os.Getenv(cfg.ENV.Login.SubPath)
-		subPath := appSubPath[:len(appSubPath)-1]
-		referURL := strings.Join([]string{"http://", c.Request.Host, subPath, c.Request.RequestURI}, "")
-		redirectUrl := strings.Join([]string{subPath, "account/login_page?refer_url=", referURL}, "")
+		// appSubPath := os.Getenv(cfg.ENV.Login.SubPath)
+		// subPath := appSubPath[:len(appSubPath)-1]
+		// referURL := strings.Join([]string{"http://", c.Request.Host, subPath, c.Request.RequestURI}, "")
+		// redirectURL := strings.Join([]string{subPath, "account/login_page?refer_url=", referURL}, "")
 
-		c.Redirect(http.StatusFound, redirectUrl)
+		cURL := strings.Join([]string{"http://", c.Request.Host, os.Getenv(cfg.ENV.Login.SubPath), "/"}, "")
+		redirectURL := cfg.ENV.Login.LoginURL + "?c_url=" + cURL
+		log.Printf("Redirect to login page: %s\n", redirectURL)
+		c.Redirect(http.StatusFound, redirectURL)
+		return
 	}
 
 	// verify session and cookie success
@@ -55,8 +60,10 @@ func LoginRequired(c *gin.Context) {
 
 	// Verify cookie from remote login server
 	getInfo := GetInfo{}
-	request := gorequest.New()
-	_, _, errs := request.Get(cfg.ENV.Login.UserInfoURL).Query(map[string]string{cfg.ENV.Login.Ticket: ticket}).EndStruct(&getInfo)
+	_, _, errs := gorequest.New().Get(cfg.ENV.Login.UserInfoURL).Query(map[string]string{
+		cfg.ENV.Login.Ticket: ticket,
+	}).EndStruct(&getInfo)
+
 	if errs != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"状态返回": "内部错误"})
 		return

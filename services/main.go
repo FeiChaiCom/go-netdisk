@@ -2,6 +2,8 @@ package services
 
 import (
 	"fmt"
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
 	cfg "go-netdisk/config"
 	"go-netdisk/middleware"
@@ -27,12 +29,17 @@ var registers = []Register{
 	demo.RegisterTestGroup,
 }
 
-func InitAPIRouter() *gin.Engine {
+func InitRouter() *gin.Engine {
 	engine := gin.New()
 	// engine := gin.Default()
 	// engine.Use(gin.Logger())
 	engine.Use(cfg.APILogger)
 	engine.Use(gin.Recovery())
+
+	// Init session
+	store := cookie.NewStore([]byte("secret"))
+	engine.Use(sessions.Sessions("gin-session", store))
+	engine.Use(middleware.LoginRequired)
 
 	if cfg.ENV.Debug {
 		engine.Use(middleware.RequestDebugLogger())
@@ -47,10 +54,13 @@ func InitAPIRouter() *gin.Engine {
 		register(apiGroup)
 	}
 
+	// Init template and static files serve router
+	initTemplateRouter(engine)
+
 	return engine
 }
 
-func InitTemplateRouter(engine *gin.Engine) {
+func initTemplateRouter(engine *gin.Engine) {
 	// Load index html
 	engine.LoadHTMLGlob(cfg.TemplateDirPattern)
 	engine.GET("", func(c *gin.Context) {
@@ -65,5 +75,4 @@ func InitTemplateRouter(engine *gin.Engine) {
 
 	// Serve media files
 	engine.StaticFS(cfg.MediaURL, http.Dir(cfg.ENV.MediaDir))
-
 }

@@ -19,12 +19,14 @@ const (
 )
 
 func init() {
+	// Load settings from config file or env
 	LoadSettings("config")
 	if err := viper.Unmarshal(ENV); err != nil {
 		panic(err)
 	}
 
 	ENV.MatterRoot = ENV.MediaDir + "/matter-root"
+	// viper.Debug()
 	log.Println(utils.PrettyJson(ENV))
 }
 
