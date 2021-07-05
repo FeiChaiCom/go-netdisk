@@ -2,7 +2,7 @@ package render
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/spf13/viper"
+	cfg "go-netdisk/config"
 	"go-netdisk/utils"
 	"log"
 	"net/http"
@@ -31,7 +31,7 @@ type Response struct {
 
 func JSONResponse(c *gin.Context, r *Response) {
 	// Log response data for debug
-	if viper.GetBool("debug") {
+	if cfg.ENV.Debug {
 		log.Printf("---------------------\n"+
 			"FullPath:\t%s\n",
 			c.FullPath(),

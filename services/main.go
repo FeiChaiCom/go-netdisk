@@ -3,7 +3,6 @@ package services
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/spf13/viper"
 	cfg "go-netdisk/config"
 	"go-netdisk/middleware"
 	"go-netdisk/services/demo"
@@ -35,7 +34,7 @@ func InitAPIRouter() *gin.Engine {
 	engine.Use(cfg.APILogger)
 	engine.Use(gin.Recovery())
 
-	if viper.GetBool("debug") {
+	if cfg.ENV.Debug {
 		engine.Use(middleware.RequestDebugLogger())
 	}
 
