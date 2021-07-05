@@ -106,7 +106,7 @@ func testUploadFile(c *gin.Context) {
 	file, _ := c.FormFile("file")
 	log.Println(file.Filename)
 
-	dstFile := strings.Join([]string{cfg.MediaDir, file.Filename}, "/")
+	dstFile := strings.Join([]string{cfg.ENV.MediaDir, file.Filename}, "/")
 	log.Println(dstFile)
 
 	if err := c.SaveUploadedFile(file, dstFile); err != nil {
@@ -125,7 +125,7 @@ func testUploadFile(c *gin.Context) {
 
 // curl http://localhost:5000/api/tests/test_get_file/
 func testGetFile(c *gin.Context) {
-	c.FileAttachment(cfg.MediaDir, "log.tar.gz")
+	c.FileAttachment(cfg.ENV.MediaDir, "log.tar.gz")
 	// curl http://localhost:5000/api/tests/test_get_file/ -o log.tar.gz
 	// c.File(cfg.MediaDir + "/log.tar.gz")
 }

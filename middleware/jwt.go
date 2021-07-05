@@ -6,7 +6,6 @@ import (
 	"github.com/golang-jwt/jwt"
 	cfg "go-netdisk/config"
 	"go-netdisk/models/db"
-	"log"
 	"net/http"
 )
 
@@ -34,19 +33,17 @@ func JWTLoginRequired() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// get token from header or cookie
 		// token := c.GetHeader("X-TOKEN")
-		token, err := c.Cookie(cfg.AuthCookieName)
+		token, err := c.Cookie(cfg.ENV.JWT.AuthCookieName)
 		if token == "" || err != nil {
-			log.Println(err)
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 				"message": "login required, token not exist",
 			})
 			return
 		}
 
-		j := JWT{SecretKey: []byte(cfg.JwtSecretKey)}
+		j := JWT{SecretKey: []byte(cfg.ENV.JWT.SecretKey)}
 		claims, err := j.ParseToken(token)
 		if err != nil {
-			log.Println(err)
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 				"message": "login required, token not valid",
 			})
@@ -56,7 +53,6 @@ func JWTLoginRequired() gin.HandlerFunc {
 		// user, err := db.GetUserByUUID(claims.UUID)
 		user, err := db.GetUserByName(claims.Username)
 		if err != nil {
-			log.Println(err)
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 				"message": "login required, user not found",
 			})

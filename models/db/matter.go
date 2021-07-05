@@ -50,7 +50,7 @@ func (m *Matter) BeforeCreate(tx *gorm.DB) (err error) {
 // TODO-NOT-BEP: delete file or directory
 func (m *Matter) BeforeDelete(tx *gorm.DB) (err error) {
 	if m.Path != "" {
-		realPath := cfg.MatterRoot + m.Path
+		realPath := cfg.ENV.MatterRoot + m.Path
 		return os.RemoveAll(realPath)
 	}
 	return nil
