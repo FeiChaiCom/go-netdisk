@@ -91,7 +91,7 @@ func UploadFileHandler(c *gin.Context) {
 	}
 
 	filePath := parentDir + "/" + p.File.Filename
-	realFilePath := strings.Join([]string{cfg.MatterRoot, filePath}, "/")
+	realFilePath := strings.Join([]string{cfg.ENV.MatterRoot, filePath}, "/")
 	if err := c.SaveUploadedFile(p.File, realFilePath); err != nil {
 		R.Error(c, err)
 		return
@@ -123,7 +123,7 @@ func DownloadFileHandler(c *gin.Context) {
 		name = matter.Name
 	}
 
-	realPath := cfg.MatterRoot + matter.File
+	realPath := cfg.ENV.MatterRoot + matter.File
 	c.FileAttachment(realPath, name)
 	// c.File(matter.Path)
 
@@ -148,7 +148,7 @@ func CreateDirectoryHandler(c *gin.Context) {
 	}
 
 	path := parentDir + "/" + p.Name
-	realPath := cfg.MatterRoot + path
+	realPath := cfg.ENV.MatterRoot + path
 	if err := os.MkdirAll(realPath, 0755); err != nil {
 		log.Printf("mkdir <%s> error: %s", realPath, err)
 	}

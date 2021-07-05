@@ -1,0 +1,18 @@
+# default config
+
+port: 5000
+debug: true
+logfile: "gin.log"
+mediadir: "./media"
+
+mysql:
+  name: tank
+  host: 127.0.0.1
+  port: 3306
+  username: root
+  password: root
+
+jwt:
+  issuer: "FEICHAI.COM"
+  secret-key: "feichaicom"
+  auth-cookie-name: "auth_token"

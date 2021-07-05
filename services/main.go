@@ -3,6 +3,7 @@ package services
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/spf13/viper"
 	cfg "go-netdisk/config"
 	"go-netdisk/middleware"
 	"go-netdisk/services/demo"
@@ -34,7 +35,7 @@ func InitAPIRouter() *gin.Engine {
 	engine.Use(cfg.APILogger)
 	engine.Use(gin.Recovery())
 
-	if cfg.DebugOn {
+	if viper.GetBool("debug") {
 		engine.Use(middleware.RequestDebugLogger())
 	}
 
@@ -64,6 +65,6 @@ func InitTemplateRouter(engine *gin.Engine) {
 	engine.StaticFile("/favicon.ico", fmt.Sprintf("%s/favicon.ico", cfg.StaticDir))
 
 	// Serve media files
-	engine.StaticFS(cfg.MediaURL, http.Dir(cfg.MediaDir))
+	engine.StaticFS(cfg.MediaURL, http.Dir(cfg.ENV.MediaDir))
 
 }

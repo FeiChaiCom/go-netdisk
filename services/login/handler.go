@@ -27,7 +27,7 @@ func AfterLoginSuccess(c *gin.Context, u *db.User) error {
 // Fake logout to clean cookie
 func JwtLogoutHandler(c *gin.Context) {
 	// Delete cookie
-	c.SetCookie(cfg.AuthCookieName, "", -1, "/", "", false, true)
+	c.SetCookie(cfg.ENV.JWT.AuthCookieName, "", -1, "/", "", false, true)
 	R.OkOnly(c)
 }
 
@@ -47,7 +47,7 @@ func JwtLoginHandler(c *gin.Context) {
 	}
 
 	// Make token response with user claim
-	j := &middleware.JWT{SecretKey: []byte(cfg.JwtSecretKey)}
+	j := &middleware.JWT{SecretKey: []byte(cfg.ENV.JWT.SecretKey)}
 	claims := middleware.MyClaims{
 		TokenUser: middleware.TokenUser{
 			UUID:     u.UUID.String(),
@@ -55,7 +55,7 @@ func JwtLoginHandler(c *gin.Context) {
 			Password: u.Password,
 		},
 		StandardClaims: jwt.StandardClaims{
-			Issuer:    cfg.JwtIssuer,
+			Issuer:    cfg.ENV.JWT.Issuer,
 			ExpiresAt: time.Now().Add(time.Hour * 24).Unix(),
 		},
 	}
@@ -63,7 +63,7 @@ func JwtLoginHandler(c *gin.Context) {
 	token, _ := j.CreateToken(claims)
 
 	// c.Header("X-TOKEN", token)
-	c.SetCookie(cfg.AuthCookieName, token, 60*60*24, "/", "", false, true)
+	c.SetCookie(cfg.ENV.JWT.AuthCookieName, token, 60*60*24, "/", "", false, true)
 
 	c.JSON(http.StatusOK, gin.H{
 		"user":        u,
