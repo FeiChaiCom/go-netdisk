@@ -28,6 +28,14 @@ func init() {
 	log.Println(utils.PrettyJson(ENV))
 }
 
+type LoginConfig struct {
+	Ticket      string `mapstructure:"ticket" yaml:"ticket"`
+	LoginURL    string `mapstructure:"login-url" yaml:"login-url"`
+	UID         string `mapstructure:"uid" yaml:"uid"`
+	UserInfoURL string `mapstructure:"user-info-url" yaml:"user-info-url"`
+	SubPath     string `mapstructure:"sub-path" yaml:"sub-path"`
+}
+
 type YamlConfig struct {
 	Port       int         `mapstructure:"port" yaml:"port"`
 	Debug      bool        `mapstructure:"debug" yaml:"debug"`
@@ -36,6 +44,7 @@ type YamlConfig struct {
 	MatterRoot string      `mapstructure:"matterroot" yaml:"matterroot"`
 	Mysql      MysqlConfig `mapstructure:"mysql" yaml:"mysql"`
 	JWT        JwtConfig   `mapstructure:"jwt" yaml:"jwt"`
+	Login      LoginConfig `mapstructure:"login" yaml:"login"`
 }
 
 type JwtConfig struct {
