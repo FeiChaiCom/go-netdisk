@@ -16,3 +16,10 @@ jwt:
   issuer: "FEICHAI.COM"
   secret-key: "feichaicom"
   auth-cookie-name: "auth_token"
+
+login:
+  ticket: ""
+  login-url: ""
+  user-info-url: ""
+  uid: ""
+  sub-path: ""
