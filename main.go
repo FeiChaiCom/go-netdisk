@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/spf13/viper"
 	cfg "go-netdisk/config"
 	"go-netdisk/services"
 	"io"
@@ -36,7 +35,7 @@ func InitGin() {
 		}
 	}
 
-	if viper.GetBool("debug") {
+	if cfg.ENV.Debug {
 		gin.SetMode(gin.ReleaseMode)
 	}
 }
@@ -69,7 +68,7 @@ func main() {
 	// Stop gracefully
 	{
 		srv := &http.Server{
-			Addr:           fmt.Sprintf(":%d", viper.GetInt("port")),
+			Addr:           fmt.Sprintf(":%d", cfg.ENV.Port),
 			Handler:        router,
 			ReadTimeout:    10 * time.Second,
 			WriteTimeout:   30 * time.Second,
