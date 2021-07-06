@@ -32,17 +32,16 @@ var registers = []Register{
 func InitRouter() *gin.Engine {
 	engine := gin.New()
 	// engine := gin.Default()
-	// engine.Use(gin.Logger())
-	engine.Use(cfg.APILogger)
+	engine.Use(gin.Logger())
+	//engine.Use(cfg.APILogger)
 	engine.Use(gin.Recovery())
 
 	// Init session
 	store := cookie.NewStore([]byte("secret"))
 	engine.Use(sessions.Sessions("gin-session", store))
-	engine.Use(middleware.LoginRequired)
 
 	if cfg.ENV.Debug {
-		engine.Use(middleware.RequestDebugLogger())
+		engine.Use(middleware.RequestDebugLogger)
 	}
 
 	// Set a lower memory limit for multipart forms (default 32M)
