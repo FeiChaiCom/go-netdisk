@@ -28,22 +28,22 @@ func LoginRequired(c *gin.Context) {
 	// Redirect user to login first
 	if err != nil {
 		// Redirect to pop up window
-		// if c.Request.Header.Get("X-Requested-With") == "XMLHttpRequest" {
-		// 	cURL := strings.Join([]string{"http://", c.Request.Host, os.Getenv(cfg.ENV.Login.SubPath), "account/login_success"}, "")
-		// 	c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-		// 		"status":    http.StatusUnauthorized,
-		// 		"login_url": cfg.ENV.Login.LoginURL + "?c_url=" + cURL,
-		// 		"width":     460,
-		// 		"height":    490,
-		// 	})
-		// 	return
-		// }
+		if c.Request.Header.Get("X-Requested-With") == "XMLHttpRequest" {
+			cURL := strings.Join([]string{"http://", c.Request.Host, os.Getenv(cfg.ENV.Login.SubPath), "account/login_success"}, "")
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+				"status":    http.StatusUnauthorized,
+				"login_url": cfg.ENV.Login.LoginURL + "?c_url=" + cURL,
+				"width":     460,
+				"height":    490,
+			})
+			return
+		}
 
 		// Redirect to login page
-		// appSubPath := os.Getenv(cfg.ENV.Login.SubPath)
-		// subPath := appSubPath[:len(appSubPath)-1]
-		// referURL := strings.Join([]string{"http://", c.Request.Host, subPath, c.Request.RequestURI}, "")
-		// redirectURL := strings.Join([]string{subPath, "account/login_page?refer_url=", referURL}, "")
+		//appSubPath := os.Getenv(cfg.ENV.Login.SubPath)
+		//subPath := appSubPath[:len(appSubPath)-1]
+		//referURL := strings.Join([]string{"http://", c.Request.Host, subPath, c.Request.RequestURI}, "")
+		//redirectURL := strings.Join([]string{subPath, "account/login_page?refer_url=", referURL}, "")
 
 		cURL := strings.Join([]string{"http://", c.Request.Host, os.Getenv(cfg.ENV.Login.SubPath), "/"}, "")
 		redirectURL := cfg.ENV.Login.LoginURL + "?c_url=" + cURL
@@ -71,7 +71,7 @@ func LoginRequired(c *gin.Context) {
 
 	// Login success from remote login server
 	uid, err := c.Cookie(cfg.ENV.Login.UID)
-	if err == nil {
+	if err != nil {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 			"message": "login required, user not found",
 		})

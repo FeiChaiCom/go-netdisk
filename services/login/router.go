@@ -11,5 +11,7 @@ func RegisterLoginGroup(rg *gin.RouterGroup) {
 	users.POST("login/", JwtLoginHandler)
 	users.POST("logout/", JwtLogoutHandler)
 	users.POST("register/", RegisterHandler)
+	users.GET("login_page/", LoginPageHandler)
+	users.GET("login_success/", LoginSuccessHandler)
 
 }

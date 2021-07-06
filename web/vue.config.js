@@ -4,7 +4,8 @@ module.exports = {
   publicPath: process.env.PUBLIC_PATH,
   assetsDir: "",
   devServer: {
-    port: 8080,
+    disableHostCheck: true,
+    port: 8888,
     proxy: {
       '/api': {
         target: 'http://127.0.0.1:5000',
