@@ -5,7 +5,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
 	cfg "go-netdisk/config"
-	"go-netdisk/models/db"
 	"net/http"
 )
 
@@ -50,15 +49,15 @@ func JWTLoginRequired() gin.HandlerFunc {
 			return
 		}
 
-		if _, err := db.GetUserByName(claims.Username); err != nil {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-				"message": "login required, user not found",
-			})
-			return
-		}
+		// if _, err := db.GetUserByName(claims.Username); err != nil {
+		// 	c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+		// 		"message": "login required, user not found",
+		// 	})
+		// 	return
+		// }
 
 		// Add user info to context
-		c.Set("username", claims.TokenUser.Username)
+		c.Set("username", claims.Username)
 		c.Next()
 	}
 }
