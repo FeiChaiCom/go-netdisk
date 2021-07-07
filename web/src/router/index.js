@@ -20,6 +20,7 @@ import PreferenceIndex from '../views/preference/Index'
 import PreferenceEdit from '../views/preference/Edit'
 import NotFound from '../views/layout/NotFound'
 import store from '../vuex'
+import Cookies from "js-cookie";
 
 Vue.use(Router)
 
@@ -359,7 +360,8 @@ router.beforeEach((to, from, next) => {
   if (to.matched.some(record => record.meta.requiresAuth)) {
     // this route requires auth, check if logged in
     // if not, redirect to login page.
-    if (!store.state.user.uuid) {
+    let uid = Cookies.get("bk_uid");
+    if (!store.state.user.uuid && !uid) {
       next({
         path: '/user/login',
         query: {redirect: to.fullPath}

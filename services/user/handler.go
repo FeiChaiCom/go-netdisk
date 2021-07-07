@@ -5,6 +5,7 @@ import (
 	"go-netdisk/models/db"
 	"go-netdisk/models/form"
 	R "go-netdisk/render"
+	"net/http"
 )
 
 // curl http://localhost:5000/api/user/page/?page=1&pageSize=20&orderCreateTime=DESC
@@ -21,5 +22,18 @@ func PageHandler(c *gin.Context) {
 		"totalPage":  totalPages,
 		"totalItems": totalItems,
 		"data":       users,
+	})
+}
+
+func Me(c *gin.Context) {
+	username := c.GetString("username")
+	me, err := db.GetUserByName(username)
+	if err != nil {
+		R.Error(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"user": me,
 	})
 }
