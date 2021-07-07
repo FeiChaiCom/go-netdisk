@@ -6,7 +6,6 @@ import (
 	"github.com/parnurzeal/gorequest"
 	cfg "go-netdisk/config"
 	"go-netdisk/models/db"
-	"log"
 	"net/http"
 	"strings"
 )
@@ -55,14 +54,9 @@ func LoginRequired(c *gin.Context) {
 
 	// verify session and cookie success
 	if ticket == session.Get(cfg.ENV.Login.Ticket) {
-		uid, err := c.Cookie(cfg.ENV.Login.UID)
-		if err != nil {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"message": "login required, user not found"})
-			return
-		}
-		// Inject user to context
+		// Inject username to context
+		uid, _ := c.Cookie(cfg.ENV.Login.UID)
 		c.Set("username", uid)
-
 		c.Next()
 		return
 	}
@@ -81,7 +75,7 @@ func LoginRequired(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"message": "server error, create user info failed"})
 		return
 	}
-	log.Printf("url: %s?ticket=%s, userInfo: %#v\n", cfg.ENV.Login.UserInfoURL, ticket, userInfo)
+	// log.Printf("url: %s?ticket=%s, userInfo: %#v\n", cfg.ENV.Login.UserInfoURL, ticket, userInfo)
 
 	// Login success from remote login server
 	uid, err := c.Cookie(cfg.ENV.Login.UID)
@@ -93,7 +87,7 @@ func LoginRequired(c *gin.Context) {
 	session.Set(cfg.ENV.Login.UID, uid)
 	session.Save()
 
-	// Inject user to context
+	// Inject username to context
 	c.Set("username", uid)
 	c.Next()
 }
