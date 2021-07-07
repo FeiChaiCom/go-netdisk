@@ -13,6 +13,7 @@
   export default {
     data() {
       return {
+        user: this.$store.state.user,
         preference: this.$store.state.preference
       }
     },
@@ -21,10 +22,8 @@
       NprogressContainer
     },
     mounted() {
-
-      let that = this
       this.preference.httpFetch()
-
+      this.user.httpGetUserInfo()
     }
   }
 </script>

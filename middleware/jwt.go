@@ -50,9 +50,7 @@ func JWTLoginRequired() gin.HandlerFunc {
 			return
 		}
 
-		// user, err := db.GetUserByUUID(claims.UUID)
-		user, err := db.GetUserByName(claims.Username)
-		if err != nil {
+		if _, err := db.GetUserByName(claims.Username); err != nil {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 				"message": "login required, user not found",
 			})
@@ -60,8 +58,6 @@ func JWTLoginRequired() gin.HandlerFunc {
 		}
 
 		// Add user info to context
-		c.Set("user", user)
-		c.Set("UUID", claims.TokenUser.UUID)
 		c.Set("username", claims.TokenUser.Username)
 		c.Next()
 	}

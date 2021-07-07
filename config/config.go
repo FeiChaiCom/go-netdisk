@@ -39,14 +39,15 @@ type LoginConfig struct {
 }
 
 type YamlConfig struct {
-	Port       int         `mapstructure:"port" yaml:"port"`
-	Debug      bool        `mapstructure:"debug" yaml:"debug"`
-	LogFile    string      `mapstructure:"logfile" yaml:"logfile"`
-	MediaDir   string      `mapstructure:"mediadir" yaml:"mediadir"`
-	MatterRoot string      `mapstructure:"matterroot" yaml:"matterroot"`
-	Mysql      MysqlConfig `mapstructure:"mysql" yaml:"mysql"`
-	JWT        JwtConfig   `mapstructure:"jwt" yaml:"jwt"`
-	Login      LoginConfig `mapstructure:"login" yaml:"login"`
+	Port            int         `mapstructure:"port" yaml:"port"`
+	Debug           bool        `mapstructure:"debug" yaml:"debug"`
+	DefaultPassword string      `mapstructure:"default-password" yaml:"default-password"`
+	LogFile         string      `mapstructure:"logfile" yaml:"logfile"`
+	MediaDir        string      `mapstructure:"mediadir" yaml:"mediadir"`
+	MatterRoot      string      `mapstructure:"matterroot" yaml:"matterroot"`
+	Mysql           MysqlConfig `mapstructure:"mysql" yaml:"mysql"`
+	JWT             JwtConfig   `mapstructure:"jwt" yaml:"jwt"`
+	Login           LoginConfig `mapstructure:"login" yaml:"login"`
 }
 
 type JwtConfig struct {

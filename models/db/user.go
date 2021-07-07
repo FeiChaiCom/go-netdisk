@@ -63,6 +63,35 @@ func init() {
 
 var ErrUserExist = errors.New("username is registered, please replace another one")
 
+// GetOrCreateUser get or create user by username
+func GetOrCreateUser(username string) (user *User, err error) {
+	user, err = GetUserByName(username)
+
+	// User exist, return directly
+	if err == nil {
+		return user, nil
+	}
+
+	// Return error except not found
+	if !errors.Is(err, gorm.ErrRecordNotFound) {
+		return user, err
+	}
+
+	// Not found, then create a new user
+	password, err := unchained.MakePassword(cfg.ENV.DefaultPassword, "", unchained.Argon2Hasher)
+	if err != nil {
+		return user, err
+	}
+
+	user = &User{
+		Username: username,
+		Password: password,
+	}
+	err = cfg.DB.Create(user).Error
+
+	return
+}
+
 func GetUserByUUID(uuid string) (user *User, err error) {
 	err = cfg.DB.First(&user, "uuid = ?", uuid).Error
 	return

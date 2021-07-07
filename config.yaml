@@ -1,9 +1,10 @@
 # default config
 
-port: 5000
 debug: true
+port: 5000
 logfile: "gin.log"
 mediadir: "./media"
+default-password: miya.12345
 
 mysql:
   name: tank
@@ -18,8 +19,8 @@ jwt:
   auth-cookie-name: "auth_token"
 
 login:
-  ticket: ""
-  login-url: ""
-  user-info-url: ""
-  uid: ""
-  sub-path: ""
+  ticket: "bk_ticket"
+  login-url: "http://login.o.abc.com/"
+  user-info-url: "http://login.o.abc.com/user/get_full_info"
+  uid: "bk_uid"
+  sub-path: "/"

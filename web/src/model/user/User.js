@@ -21,6 +21,7 @@ export default class User extends BaseEntity {
   static URL_REGISTER = '/api/user/register'
   static URL_LOGOUT = '/api/account/logout/'
   static URL_USER_CHANGE_PASSWORD = '/api/user/change/password'
+  static URL_USER_INFO = '/api/user/me/'
   static URL_USER_RESET_PASSWORD = '/api/user/reset/password'
   static URL_USER_TOGGLE_STATUS = '/api/user/toggle_status/'
   static URL_USER_TRANSFIGURATION = '/api/user/transfiguration'
@@ -195,6 +196,21 @@ export default class User extends BaseEntity {
     //登录成功后去本地保存一下用户的简单信息，方便下次自动填入个别字段。
     this.saveToLocalStorage(response.data.user)
 
+  }
+
+  httpGetUserInfo(successCallback, errorCallback) {
+    let that = this
+    this.httpGet(User.URL_USER_INFO, {}, function (response) {
+
+      if (!response.data.user) {
+        that.errorMessage = response.data.msg
+        return false
+      }
+
+      that.innerLogin(response)
+      that.safeCallback(successCallback)(response)
+
+    }, errorCallback)
   }
 
   httpLogin(username, password, successCallback, errorCallback) {

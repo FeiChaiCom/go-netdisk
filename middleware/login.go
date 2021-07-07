@@ -5,19 +5,27 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/parnurzeal/gorequest"
 	cfg "go-netdisk/config"
+	"go-netdisk/models/db"
 	"log"
 	"net/http"
 	"strings"
 )
 
-type GetInfo struct {
-	Message string   `json:"msg"`
-	Data    UserInfo `json:"data"`
-	Ret     int      `json:"ret"`
-}
 type UserInfo struct {
+	Message string           `json:"msg"`
+	Data    UserFullInfoData `json:"data"`
+	Ret     int              `json:"ret"`
+}
+type UserInfoData struct {
 	Username  string `json:"username"`
 	AvatarURL string `json:"avatar_url"`
+}
+
+type UserFullInfoData struct {
+	UserInfoData
+	DeptName  string `json:"dept_name"`
+	GroupName string `json:"group_name"`
+	PostName  string `json:"post_name"`
 }
 
 func LoginRequired(c *gin.Context) {
@@ -27,11 +35,9 @@ func LoginRequired(c *gin.Context) {
 	// Redirect user to login first
 	if err != nil {
 		cURL := strings.Join([]string{"http://", c.Request.Host, cfg.ENV.Login.SubPath, c.Request.RequestURI}, "")
-		referer := c.Request.Header["Referer"]
-		if len(referer) > 0 {
+		if referer := c.Request.Header["Referer"]; len(referer) > 0 {
 			cURL = referer[0]
 		}
-
 		redirectURL := cfg.ENV.Login.LoginURL + "?c_url=" + cURL
 
 		// Redirect to pop up window
@@ -42,43 +48,52 @@ func LoginRequired(c *gin.Context) {
 			})
 			return
 		}
-
 		// Redirect to login page
-		log.Printf("Redirect to login page: %s\n", redirectURL)
 		c.Redirect(http.StatusFound, redirectURL)
 		return
 	}
 
 	// verify session and cookie success
 	if ticket == session.Get(cfg.ENV.Login.Ticket) {
+		uid, err := c.Cookie(cfg.ENV.Login.UID)
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"message": "login required, user not found"})
+			return
+		}
+		// Inject user to context
+		c.Set("username", uid)
+
 		c.Next()
 		return
 	}
 
 	// Verify cookie from remote login server
-	var getInfo GetInfo
+	var userInfo UserInfo
 	_, _, errs := gorequest.New().Get(cfg.ENV.Login.UserInfoURL).Query(map[string]string{
 		cfg.ENV.Login.Ticket: ticket,
-	}).EndStruct(&getInfo)
-	if errs != nil || getInfo.Ret != 0 {
+	}).EndStruct(&userInfo)
+	if errs != nil || userInfo.Ret != 0 {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"message": "server error, query user info failed"})
 		return
 	}
-	log.Printf("url: %s?ticket=%s, getInfo: %#v\n", cfg.ENV.Login.UserInfoURL, ticket, getInfo)
+
+	if _, err := db.GetOrCreateUser(userInfo.Data.Username); err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"message": "server error, create user info failed"})
+		return
+	}
+	log.Printf("url: %s?ticket=%s, userInfo: %#v\n", cfg.ENV.Login.UserInfoURL, ticket, userInfo)
 
 	// Login success from remote login server
 	uid, err := c.Cookie(cfg.ENV.Login.UID)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-			"message": "login required, user not found",
-		})
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"message": "login required, user not found"})
 		return
 	}
-
-	log.Printf("login sucess: uid=%s, ticket=%s\n", uid, ticket)
 	session.Set(cfg.ENV.Login.Ticket, ticket)
 	session.Set(cfg.ENV.Login.UID, uid)
 	session.Save()
-	c.Next()
 
+	// Inject user to context
+	c.Set("username", uid)
+	c.Next()
 }
