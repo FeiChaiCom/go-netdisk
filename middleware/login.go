@@ -7,7 +7,6 @@ import (
 	cfg "go-netdisk/config"
 	"log"
 	"net/http"
-	"os"
 	"strings"
 )
 
@@ -27,26 +26,24 @@ func LoginRequired(c *gin.Context) {
 
 	// Redirect user to login first
 	if err != nil {
+		cURL := strings.Join([]string{"http://", c.Request.Host, cfg.ENV.Login.SubPath, c.Request.RequestURI}, "")
+		referer := c.Request.Header["Referer"]
+		if len(referer) > 0 {
+			cURL = referer[0]
+		}
+
+		redirectURL := cfg.ENV.Login.LoginURL + "?c_url=" + cURL
+
 		// Redirect to pop up window
 		if c.Request.Header.Get("X-Requested-With") == "XMLHttpRequest" {
-			cURL := strings.Join([]string{"http://", c.Request.Host, os.Getenv(cfg.ENV.Login.SubPath), "account/login_success"}, "")
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 				"status":    http.StatusUnauthorized,
-				"login_url": cfg.ENV.Login.LoginURL + "?c_url=" + cURL,
-				"width":     460,
-				"height":    490,
+				"login_url": redirectURL,
 			})
 			return
 		}
 
 		// Redirect to login page
-		//appSubPath := os.Getenv(cfg.ENV.Login.SubPath)
-		//subPath := appSubPath[:len(appSubPath)-1]
-		//referURL := strings.Join([]string{"http://", c.Request.Host, subPath, c.Request.RequestURI}, "")
-		//redirectURL := strings.Join([]string{subPath, "account/login_page?refer_url=", referURL}, "")
-
-		cURL := strings.Join([]string{"http://", c.Request.Host, os.Getenv(cfg.ENV.Login.SubPath), "/"}, "")
-		redirectURL := cfg.ENV.Login.LoginURL + "?c_url=" + cURL
 		log.Printf("Redirect to login page: %s\n", redirectURL)
 		c.Redirect(http.StatusFound, redirectURL)
 		return
@@ -67,7 +64,7 @@ func LoginRequired(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"message": "server error, query user info failed"})
 		return
 	}
-	log.Printf("getInfo: %#v\n", getInfo)
+	log.Printf("url: %s?ticket=%s, getInfo: %#v\n", cfg.ENV.Login.UserInfoURL, ticket, getInfo)
 
 	// Login success from remote login server
 	uid, err := c.Cookie(cfg.ENV.Login.UID)

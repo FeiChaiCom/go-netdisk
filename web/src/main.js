@@ -37,7 +37,7 @@ Vue.http.interceptors.push(function (request, next) {
   // continue to next interceptor
   next(function (response) {
     if (response.status === 401) {
-      window.open(response.data.login_url)
+      window.location.href = response.data.login_url
       // router.replace({
       //   path: '/user/login',
       // })
