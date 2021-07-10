@@ -1,0 +1,36 @@
+# prod config
+
+debug: true
+runmode: BKPAAS_ENVIRONMENT
+port: PORT
+logfile: "/app/logs/gin.log"
+media-dir: "./media"
+upload-dir: "./media/matter-root"
+default-password: miya.12345
+
+paas:
+  url: BKPAAS_URL
+  app-name: BKPAAS_ENGINE_APP_NAME
+  app-code: BKPAAS_APP_CODE
+  app-secret: BKPAAS_APP_SECRET
+  app-module-name: BKPAAS_APP_MODULE_NAME
+  app-log-path: BKPAAS_APP_LOG_PATH
+
+mysql:
+  name: GCS_MYSQL_NAME
+  host: GCS_MYSQL_HOST
+  port: GCS_MYSQL_PORT
+  username: GCS_MYSQL_USER
+  password: GCS_MYSQL_PASSWORD
+
+jwt:
+  issuer: "FEICHAI.COM"
+  secret-key: "feichaicom"
+  auth-cookie-name: "auth_token"
+
+login:
+  ticket: BKAPP_TICKET
+  login-url: BKAPP_LOGIN_URL
+  user-info-url: BKAPP_USER_INFO_URL
+  uid: BKAPP_UID
+  sub-path: "/"
