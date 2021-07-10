@@ -22,23 +22,11 @@ func main() {
 
 	// Init url router for apis
 	router := apps.InitAPIRouter()
-
-	// Load index html
-	router.LoadHTMLGlob(cfg.TemplateDirPattern)
-	router.GET("", func(c *gin.Context) {
-		c.HTML(http.StatusOK, "index.html", gin.H{
-			"title": "feichai",
-		})
-	})
-
-	// Serve static files
-	router.Static(cfg.StaticURL, cfg.StaticDir)
-	router.StaticFile("/favicon.ico", fmt.Sprintf("%s/favicon.ico", cfg.StaticDir))
-
-	// Serve media files
-	router.StaticFS(cfg.MediaURL, http.Dir(cfg.MediaDir))
+	apps.InitTemplateRouter(router)
 
 	// _ = router.Run(fmt.Sprintf(":%d", cfg.Port))
+
+	cfg.InitDB()
 
 	srv := &http.Server{
 		Addr:    fmt.Sprintf(":%d", cfg.Port),
