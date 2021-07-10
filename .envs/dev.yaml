@@ -3,7 +3,8 @@
 debug: true
 port: 5000
 logfile: "gin.log"
-mediadir: "./media"
+media-dir: "./media"
+upload-dir: "./media/matter-root"
 default-password: miya.12345
 
 mysql:
@@ -19,8 +20,8 @@ jwt:
   auth-cookie-name: "auth_token"
 
 login:
-  ticket: "bk_ticket"
-  login-url: "http://login.o.abc.com/"
-  user-info-url: "http://login.o.abc.com/user/get_full_info"
-  uid: "bk_uid"
+  ticket: BKAPP_TICKET
+  login-url: BKAPP_LOGIN_URL
+  user-info-url: BKAPP_USER_INFO_URL
+  uid: BKAPP_UID
   sub-path: "/"
