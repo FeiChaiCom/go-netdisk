@@ -1,6 +1,8 @@
 # dev config
 
 debug: true
+needmigrate: true
+runmode: dev
 port: 5000
 logfile: "gin.log"
 media-dir: "./media"
@@ -8,7 +10,7 @@ upload-dir: "./media/matter-root"
 default-password: miya.12345
 
 mysql:
-  name: tank
+  name: tank1
   host: 127.0.0.1
   port: 3306
   username: root
@@ -20,8 +22,7 @@ jwt:
   auth-cookie-name: "auth_token"
 
 login:
-  ticket: BKAPP_TICKET
+  uid: bk_uid
+  ticket: bk_ticket
   login-url: BKAPP_LOGIN_URL
   user-info-url: BKAPP_USER_INFO_URL
-  uid: BKAPP_UID
-  sub-path: "/"

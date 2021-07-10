@@ -22,18 +22,14 @@ type Matter struct { //nolint:maligned
 	Dir        bool      `gorm:"column:dir;not null;default:false" json:"dir"`
 	Privacy    bool      `gorm:"column:privacy;not null;default:true" json:"privacy"`
 	Path       string    `gorm:"column:path;type:varchar(1024)" json:"path"`
-	UpdateTime time.Time `gorm:"column:update_time;not null" json:"updateTime"`
-	CreateTime time.Time `gorm:"column:create_time;not null" json:"createTime"`
+	UpdateTime time.Time `gorm:"column:update_time" json:"updateTime"`
+	CreateTime time.Time `gorm:"column:create_time" json:"createTime"`
 	Times      uint32    `gorm:"column:times;not null" json:"times"`
 	File       string    `gorm:"column:file;type:varchar(100) not null" json:"file"`
 }
 
 func (Matter) TableName() string {
 	return "matter"
-}
-
-func init() {
-	// cfg.DB.AutoMigrate(&Matter{})
 }
 
 func (m *Matter) BeforeCreate(tx *gorm.DB) (err error) {

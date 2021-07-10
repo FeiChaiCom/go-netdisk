@@ -17,7 +17,7 @@ type Permission struct {
 	UserName    string    `gorm:"column:username;type:varchar(45) not null" json:"username"`
 	ProjectUUID string    `gorm:"column:project_uuid;type:varchar(36) not null" json:"projectUuid"`
 	Role        string    `gorm:"column:role;type:varchar(45);default:USER" json:"role"`
-	CreateAt    time.Time `gorm:"column:create_at;not null" json:"createAt"`
+	CreateAt    time.Time `gorm:"column:create_at" json:"createAt"`
 	CreateBy    string    `gorm:"column:create_by;type:varchar(45) not null" json:"createBy"`
 	UpdateAt    time.Time `gorm:"column:update_at" json:"updateAt"`
 	UpdateBy    string    `gorm:"column:create_by;type:varchar(45)" json:"updateBy"`
@@ -28,10 +28,6 @@ type Permission struct {
 
 func (Permission) TableName() string {
 	return "permission"
-}
-
-func init() {
-	// cfg.DB.AutoMigrate(&Permission{})
 }
 
 // Get user's permission

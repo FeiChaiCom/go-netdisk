@@ -16,16 +16,12 @@ type Preference struct {
 	DownloadDirMaxNum     int64     `gorm:"column:download_dir_max_num;not null;default:-1;comment:zip下载数量限制" json:"downloadDirMaxNum"`
 	DefaultTotalSizeLimit int64     `gorm:"column:default_total_size_limit;not null;default:-1;comment:用户默认总大小限制" json:"defaultTotalSizeLimit"`
 	AllowRegister         bool      `gorm:"column:allow_register;not null;default:true;comment:允许自动注册" json:"allowRegister"`
-	UpdateTime            time.Time `gorm:"column:update_time;not null" json:"updateTime"`
-	CreateTime            time.Time `gorm:"column:create_time;not null" json:"createTime"`
+	UpdateTime            time.Time `gorm:"column:update_time" json:"updateTime"`
+	CreateTime            time.Time `gorm:"column:create_time" json:"createTime"`
 }
 
 func (Preference) TableName() string {
 	return "preference"
-}
-
-func init() {
-	// cfg.DB.AutoMigrate(&Preference{})
 }
 
 // Get preference record by uuid

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	cfg "go-netdisk/config"
+	"go-netdisk/models/db"
 	"go-netdisk/services"
 	"io"
 	"log"
@@ -51,6 +52,10 @@ func main() {
 	// Init mysql connection
 	if err := cfg.InitDB(); err != nil {
 		panic(err)
+	}
+
+	if cfg.ENV.NeedMigrate {
+		_ = cfg.DB.AutoMigrate(&db.Project{}, &db.User{}, &db.Permission{}, &db.Matter{}, db.Preference{})
 	}
 
 	// Init url router for apis

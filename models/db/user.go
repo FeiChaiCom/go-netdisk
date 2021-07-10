@@ -20,12 +20,12 @@ type User struct {
 	SizeLimit      int64     `gorm:"column:size_limit;not null;default:268435456" json:"sizeLimit"`
 	TotalSizeLimit int64     `gorm:"column:total_size_limit;not null;default:-1" json:"totalSizeLimit"`
 	TotalSize      int64     `gorm:"column:total_size;not null;default:0" json:"totalSize"`
-	UpdateTime     time.Time `gorm:"column:update_time;not null" json:"updateTime"`
-	CreateTime     time.Time `gorm:"column:create_time;not null" json:"createTime"`
-	LastTime       time.Time `gorm:"column:last_time;default:null" json:"lastTime"`
+	UpdateTime     time.Time `gorm:"column:update_time" json:"updateTime"`
+	CreateTime     time.Time `gorm:"column:create_time" json:"createTime"`
+	LastTime       time.Time `gorm:"column:last_time" json:"lastTime"`
 	LastIP         string    `gorm:"column:last_ip;type:varchar(128)" json:"lastIp"`
 	// Django specific user column
-	DateJoined  time.Time `gorm:"column:date_joined;default:null" json:"-"`
+	DateJoined  time.Time `gorm:"column:date_joined" json:"-"`
 	AvatarURL   string    `gorm:"column:avatar_url;type:varchar(255)" json:"-"`
 	IsSuperUser bool      `gorm:"column:is_superuser;default:false" json:"-"`
 	IsStaff     bool      `gorm:"column:is_staff;default:false" json:"-"`
@@ -55,10 +55,6 @@ func (u *User) BeforeCreate(tx *gorm.DB) (err error) {
 	u.DateJoined = time.Now()
 	u.LastTime = time.Now()
 	return nil
-}
-
-func init() {
-	// cfg.DB.AutoMigrate(&User{})
 }
 
 var ErrUserExist = errors.New("username is registered, please replace another one")

@@ -39,10 +39,11 @@ func init() {
 }
 
 type YamlConfig struct {
-	Debug   bool   `mapstructure:"debug"`
-	RunMode string `mapstructure:"runmode"`
-	Port    int    `mapstructure:"port"`
-	LogFile string `mapstructure:"logfile"`
+	Debug       bool   `mapstructure:"debug"`
+	RunMode     string `mapstructure:"runmode"`
+	NeedMigrate bool   `mapstructure:"needmigrate"`
+	Port        int    `mapstructure:"port"`
+	LogFile     string `mapstructure:"logfile"`
 
 	Mysql MysqlConfig `mapstructure:"mysql"`
 	JWT   JwtConfig   `mapstructure:"jwt"`
@@ -66,7 +67,6 @@ type LoginConfig struct {
 	Ticket      string `mapstructure:"ticket"`
 	LoginURL    string `mapstructure:"login-url"`
 	UserInfoURL string `mapstructure:"user-info-url"`
-	SubPath     string `mapstructure:"sub-path"`
 }
 
 type PaasConfig struct {
@@ -98,7 +98,7 @@ func bindEnvSettings() {
 
 	_ = viper.BindEnv("paas.url", "BKPAAS_URL")
 	_ = viper.BindEnv("paas.app-name", "BKPAAS_ENGINE_APP_NAME")
-	_ = viper.BindEnv("paas.app-code", "BKPAAS_APP_CODE")
+	_ = viper.BindEnv("paas.app-code", "BKPAAS_APP_ID")
 	_ = viper.BindEnv("paas.app-secret", "BKPAAS_APP_SECRET")
 	_ = viper.BindEnv("paas.app-module-name", "BKPAAS_APP_MODULE_NAME")
 	_ = viper.BindEnv("paas.app-log-path", "BKPAAS_APP_LOG_PATH")
