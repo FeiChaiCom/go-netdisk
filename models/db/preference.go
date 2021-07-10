@@ -1,12 +1,14 @@
 package db
 
 import (
+	uuid "github.com/satori/go.uuid"
 	cfg "go-netdisk/config"
+	"gorm.io/gorm"
 	"time"
 )
 
 type Preference struct {
-	UUID                  string    `gorm:"column:uuid;primaryKey;type:varchar(36)" json:"uuid"`
+	UUID                  uuid.UUID `gorm:"column:uuid;primaryKey;type:varchar(36)" json:"uuid"`
 	Name                  string    `gorm:"column:name;type:varchar(255) not null" json:"name"`
 	LogoURL               string    `gorm:"column:logo_url;type:varchar(255);default:''" json:"logoUrl"`
 	FaviconURL            string    `gorm:"column:favicon_url;type:varchar(255);default:''" json:"faviconUrl"`
@@ -22,6 +24,13 @@ type Preference struct {
 
 func (Preference) TableName() string {
 	return "preference"
+}
+
+func (obj *Preference) BeforeCreate(tx *gorm.DB) (err error) {
+	obj.UUID = uuid.NewV4()
+	obj.CreateTime = time.Now()
+	obj.UpdateTime = time.Now()
+	return nil
 }
 
 // Get preference record by uuid

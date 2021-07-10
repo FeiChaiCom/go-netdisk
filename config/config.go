@@ -51,6 +51,7 @@ type YamlConfig struct {
 	Paas  PaasConfig  `mapstructure:"paas"`
 
 	// service logic related config
+	SuperUser       string `mapstructure:"superuser"`
 	DefaultPassword string `mapstructure:"default-password"`
 	MediaDir        string `mapstructure:"media-dir"`
 	MatterRoot      string `mapstructure:"upload-dir"`

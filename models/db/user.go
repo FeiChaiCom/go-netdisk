@@ -60,7 +60,7 @@ func (u *User) BeforeCreate(tx *gorm.DB) (err error) {
 var ErrUserExist = errors.New("username is registered, please replace another one")
 
 // GetOrCreateUser get or create user by username
-func GetOrCreateUser(username string) (user *User, err error) {
+func GetOrCreateUser(username string, isSuperUser bool) (user *User, err error) {
 	user, err = GetUserByName(username)
 
 	// User exist, return directly
@@ -79,10 +79,17 @@ func GetOrCreateUser(username string) (user *User, err error) {
 		return user, err
 	}
 
+	role := "USER"
+	if isSuperUser {
+		role = "ADMINISTRATOR"
+	}
+
 	user = &User{
 		Username: username,
 		Password: password,
+		Role:     role,
 	}
+
 	err = cfg.DB.Create(user).Error
 
 	return
