@@ -27,22 +27,24 @@ import BrowserUtil from './common/util/BrowserUtil'
 
 
 Vue.use(VueResource)
-// Vue.http.interceptors.push(function (request, next) {
-//
-//   // let token = localStorage.getItem('token')
-//   // request.headers.set('Authorization', 'Bearer ' + token)
-//   // request.headers.set('Accept', 'application/json')
-//
-//   // continue to next interceptor
-//   next(function (response) {
-//     if (response.status === 401) {
-//       router.replace({
-//         path: '/user/login',
-//       })
-//       return Promise.reject({result: true, msg: '', data: ''});
-//     }
-//   })
-// })
+
+Vue.http.interceptors.push(function (request, next) {
+
+  // let token = localStorage.getItem('token')
+  // request.headers.set('Authorization', 'Bearer ' + token)
+  // request.headers.set('Accept', 'application/json')
+
+  // continue to next interceptor
+  next(function (response) {
+    if (response.status === 401) {
+      window.open(response.data.login_url)
+      // router.replace({
+      //   path: '/user/login',
+      // })
+      return Promise.reject({result: true, msg: '', data: ''});
+    }
+  })
+})
 
 
 Vue.use(ElementUI)

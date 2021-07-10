@@ -91,3 +91,16 @@ func RegisterHandler(c *gin.Context) {
 
 	R.Ok(c, user)
 }
+
+func LoginSuccessHandler(c *gin.Context) {
+	c.HTML(http.StatusOK, "login_success.html", gin.H{})
+}
+
+func LoginPageHandler(c *gin.Context) {
+	referURL := c.Query("refer_url")
+	c.HTML(http.StatusUnauthorized, "login_page.html", gin.H{
+		"refer_url":         referURL,
+		"static_url":        "/static/",
+		"remote_static_url": "/static/",
+	})
+}
