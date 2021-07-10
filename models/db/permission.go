@@ -1,7 +1,9 @@
 package db
 
 import (
+	uuid "github.com/satori/go.uuid"
 	cfg "go-netdisk/config"
+	"gorm.io/gorm"
 	"time"
 )
 
@@ -13,9 +15,9 @@ const (
 )
 
 type Permission struct {
-	UUID        string    `gorm:"column:uuid;primaryKey;type:varchar(36)" json:"uuid"`
+	UUID        uuid.UUID `gorm:"column:uuid;primaryKey;type:varchar(36)" json:"uuid"`
 	UserName    string    `gorm:"column:username;type:varchar(45) not null" json:"username"`
-	ProjectUUID string    `gorm:"column:project_uuid;type:varchar(36) not null" json:"projectUuid"`
+	ProjectUUID uuid.UUID `gorm:"column:project_uuid;type:varchar(36) not null" json:"projectUuid"`
 	Role        string    `gorm:"column:role;type:varchar(45);default:USER" json:"role"`
 	CreateAt    time.Time `gorm:"column:create_at" json:"createAt"`
 	CreateBy    string    `gorm:"column:create_by;type:varchar(45) not null" json:"createBy"`
@@ -28,6 +30,13 @@ type Permission struct {
 
 func (Permission) TableName() string {
 	return "permission"
+}
+
+func (obj *Permission) BeforeCreate(tx *gorm.DB) (err error) {
+	obj.UUID = uuid.NewV4()
+	obj.CreateAt = time.Now()
+	obj.UpdateAt = time.Now()
+	return nil
 }
 
 // Get user's permission

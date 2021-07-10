@@ -4,42 +4,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	cfg "go-netdisk/config"
-	"go-netdisk/models/db"
 	"go-netdisk/services"
-	"io"
 	"log"
 	"net/http"
-	"os"
 	"os/signal"
 	"syscall"
 	"time"
 )
-
-// Init gin log to file and stdout
-func InitGin() {
-	log.Println("init gin log to gin.log and stdout...")
-	f, _ := os.Create(cfg.ENV.LogFile)
-	gin.DefaultWriter = io.MultiWriter(f, os.Stdout)
-
-	log.Println("init file upload dir...")
-	if _, err := os.Stat(cfg.ENV.MediaDir); os.IsNotExist(err) {
-		if err = os.Mkdir(cfg.ENV.MediaDir, 0755); err != nil {
-			panic(err)
-		}
-	}
-
-	if _, err := os.Stat(cfg.ENV.MatterRoot); os.IsNotExist(err) {
-		if err = os.Mkdir(cfg.ENV.MatterRoot, 0755); err != nil {
-			panic(err)
-		}
-	}
-
-	if !cfg.ENV.Debug {
-		gin.SetMode(gin.ReleaseMode)
-	}
-}
 
 func main() {
 	// Create context that listens for the interrupt signal from the OS.
@@ -47,16 +19,7 @@ func main() {
 	defer stop()
 
 	// Global init for gin: logger/runmode
-	InitGin()
-
-	// Init mysql connection
-	if err := cfg.InitDB(); err != nil {
-		panic(err)
-	}
-
-	if cfg.ENV.NeedMigrate {
-		_ = cfg.DB.AutoMigrate(&db.Project{}, &db.User{}, &db.Permission{}, &db.Matter{}, db.Preference{})
-	}
+	initServer()
 
 	// Init url router for apis
 	router := services.InitRouter()

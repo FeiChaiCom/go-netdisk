@@ -71,7 +71,7 @@ func LoginRequired(c *gin.Context) {
 		return
 	}
 
-	if _, err := db.GetOrCreateUser(userInfo.Data.Username); err != nil {
+	if _, err := db.GetOrCreateUser(userInfo.Data.Username, false); err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"message": "server error, create user info failed"})
 		return
 	}

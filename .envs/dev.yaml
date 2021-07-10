@@ -7,6 +7,7 @@ port: 5000
 logfile: "gin.log"
 media-dir: "./media"
 upload-dir: "./media/matter-root"
+superuser: admin
 default-password: miya.12345
 
 mysql:

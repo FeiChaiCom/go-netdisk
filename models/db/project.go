@@ -1,12 +1,14 @@
 package db
 
 import (
+	uuid "github.com/satori/go.uuid"
 	cfg "go-netdisk/config"
+	"gorm.io/gorm"
 	"time"
 )
 
 type Project struct {
-	UUID        string    `gorm:"column:uuid;primaryKey;type:varchar(36)" json:"uuid"`
+	UUID        uuid.UUID `gorm:"column:uuid;primaryKey;type:varchar(36)" json:"uuid"`
 	Name        string    `gorm:"column:name;type:varchar(64) not null;comment:项目名称" json:"name"`
 	Description string    `gorm:"column:description;type:varchar(255);default:'';comment:项目描述" json:"description"`
 	CreateAt    time.Time `gorm:"column:create_at" json:"createAt"`
@@ -20,6 +22,13 @@ type Project struct {
 
 func (Project) TableName() string {
 	return "project"
+}
+
+func (obj *Project) BeforeCreate(tx *gorm.DB) (err error) {
+	obj.UUID = uuid.NewV4()
+	obj.CreateAt = time.Now()
+	obj.UpdateAt = time.Now()
+	return nil
 }
 
 // Get user's project
