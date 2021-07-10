@@ -3,9 +3,9 @@ package services
 import (
 	"fmt"
 	"github.com/gin-contrib/sessions"
-	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
 	cfg "go-netdisk/config"
+	"go-netdisk/gin-contrib/sessions/gormstore"
 	"go-netdisk/middleware"
 	"go-netdisk/services/demo"
 	"go-netdisk/services/login"
@@ -15,6 +15,7 @@ import (
 	"go-netdisk/services/preference"
 	"go-netdisk/services/user"
 	"net/http"
+	"time"
 )
 
 type Register func(rg *gin.RouterGroup)
@@ -33,13 +34,22 @@ func InitRouter() *gin.Engine {
 	engine := gin.New()
 	// engine := gin.Default()
 	engine.Use(gin.Logger())
-	//engine.Use(cfg.APILogger)
+	// engine.Use(cfg.APILogger)
 	engine.Use(gin.Recovery())
 
 	// Init session
-	store := cookie.NewStore([]byte("secret"))
-	engine.Use(sessions.Sessions("gin-session", store))
+	// store := cookie.NewStore([]byte("secret"))
+	// store, _ := redis.NewStore(10, "tcp", "localhost:6379", "", []byte("secret"))
+	store, _ := gormstore.NewStore(cfg.DB, gormstore.Options{
+		TableName:       "gin_sessions",
+		SkipCreateTable: false,
+	}, []byte("secret"))
 
+	// If you want periodic cleanup of expired sessions:
+	quit := make(chan struct{})
+	go store.PeriodicCleanup(1*time.Hour, quit)
+
+	engine.Use(sessions.Sessions("gin-session", store))
 	if cfg.ENV.Debug {
 		engine.Use(middleware.RequestDebugLogger)
 	}
