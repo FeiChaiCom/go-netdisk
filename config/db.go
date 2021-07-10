@@ -12,13 +12,7 @@ import (
 var DB *gorm.DB
 
 func InitDB() (err error) {
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local",
-		ENV.Mysql.Username,
-		ENV.Mysql.Password,
-		ENV.Mysql.Host,
-		ENV.Mysql.Port,
-		ENV.Mysql.Name,
-	)
+	dsn := Dsn()
 
 	gormConfig := &gorm.Config{}
 	if ENV.Debug {
@@ -27,4 +21,14 @@ func InitDB() (err error) {
 
 	DB, err = gorm.Open(mysql.Open(dsn), gormConfig)
 	return
+}
+
+func Dsn() string {
+	return fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local",
+		ENV.Mysql.Username,
+		ENV.Mysql.Password,
+		ENV.Mysql.Host,
+		ENV.Mysql.Port,
+		ENV.Mysql.Name,
+	)
 }
