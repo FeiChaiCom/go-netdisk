@@ -11,7 +11,7 @@ var ENV = &YamlConfig{}
 
 const (
 	MatterRootUUID     = "root"
-	StaticDir          = "./statics"
+	StaticDir          = "./static"
 	StaticURL          = "/static"
 	MediaURL           = "/media"
 	TemplateDirPattern = "./templates/*"

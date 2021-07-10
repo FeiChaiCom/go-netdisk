@@ -35,7 +35,7 @@ func InitGin() {
 		}
 	}
 
-	if cfg.ENV.Debug {
+	if !cfg.ENV.Debug {
 		gin.SetMode(gin.ReleaseMode)
 	}
 }

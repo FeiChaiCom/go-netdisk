@@ -59,26 +59,29 @@ func LoginRequired(c *gin.Context) {
 	}
 
 	// Verify cookie from remote login server
-	getInfo := GetInfo{}
+	var getInfo GetInfo
 	_, _, errs := gorequest.New().Get(cfg.ENV.Login.UserInfoURL).Query(map[string]string{
 		cfg.ENV.Login.Ticket: ticket,
 	}).EndStruct(&getInfo)
+	if errs != nil || getInfo.Ret != 0 {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"message": "server error, query user info failed"})
+		return
+	}
+	log.Printf("getInfo: %#v\n", getInfo)
 
-	if errs != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"状态返回": "内部错误"})
+	// Login success from remote login server
+	uid, err := c.Cookie(cfg.ENV.Login.UID)
+	if err == nil {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+			"message": "login required, user not found",
+		})
 		return
 	}
 
-	// Login success from remote login server
-	if getInfo.Ret == 0 {
-		uid, err := c.Cookie(cfg.ENV.Login.UID)
-		if err == nil {
-			session.Set(cfg.ENV.Login.Ticket, ticket)
-			session.Set(cfg.ENV.Login.UID, uid)
-			session.Save()
-			c.Next()
-			return
-		}
-	}
+	log.Printf("login sucess: uid=%s, ticket=%s\n", uid, ticket)
+	session.Set(cfg.ENV.Login.Ticket, ticket)
+	session.Set(cfg.ENV.Login.UID, uid)
+	session.Save()
+	c.Next()
 
 }
