@@ -1,4 +1,4 @@
-# default config
+# dev config
 
 debug: true
 port: 5000
