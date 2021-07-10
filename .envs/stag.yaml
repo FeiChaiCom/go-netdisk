@@ -1,6 +1,7 @@
 # stag config
 
 debug: true
+needmigrate: true
 runmode: BKPAAS_ENVIRONMENT
 port: PORT
 logfile: "/app/logs/gin.log"
@@ -11,7 +12,7 @@ default-password: miya.12345
 paas:
   url: BKPAAS_URL
   app-name: BKPAAS_ENGINE_APP_NAME
-  app-code: BKPAAS_APP_CODE
+  app-code: BKPAAS_APP_ID
   app-secret: BKPAAS_APP_SECRET
   app-module-name: BKPAAS_APP_MODULE_NAME
   app-log-path: BKPAAS_APP_LOG_PATH
@@ -29,8 +30,7 @@ jwt:
   auth-cookie-name: "auth_token"
 
 login:
-  ticket: BKAPP_TICKET
+  uid: bk_uid
+  ticket: bk_ticket
   login-url: BKAPP_LOGIN_URL
   user-info-url: BKAPP_USER_INFO_URL
-  uid: BKAPP_UID
-  sub-path: "/"
