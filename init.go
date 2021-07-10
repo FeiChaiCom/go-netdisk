@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	cfg "go-netdisk/config"
 	"go-netdisk/models/db"
+	"go-netdisk/utils"
 	"io"
 	"log"
 	"os"
@@ -51,16 +52,11 @@ func initDatabase() {
 		panic(err)
 	}
 
-	if cfg.DB.First(&db.Preference{}).RowsAffected == 0 {
-		log.Printf("Create default preference")
-		prefer := db.Preference{
-			Name:          "netdisk",
-			AllowRegister: true,
-		}
-		if err := cfg.DB.Create(&prefer).Error; err != nil {
-			panic(err)
-		}
-	}
+	prefer := &db.Preference{}
+	cfg.DB.Where(db.Preference{Name: "netdisk"}).Attrs(db.Preference{
+		AllowRegister: true,
+	}).FirstOrCreate(&prefer)
+	log.Printf("GetOrCreate preference: %s\n", utils.PrettyJson(prefer))
 
 	if cfg.DB.First(&db.Project{}).RowsAffected == 0 {
 		log.Printf("Create default project")
