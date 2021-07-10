@@ -2,3 +2,5 @@
 
 echo "post-compile empty"
 ls -rtlh
+
+chmod a+rx server
