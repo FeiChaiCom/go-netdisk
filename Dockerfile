@@ -2,8 +2,10 @@ FROM golang:1.16.5-alpine AS stage0
 
 ENV GO111MODULE="on"
 ENV GOPROXY="https://goproxy.io,direct"
+ENV APK_REP="mirrors.ustc.edu.cn"
 
-RUN apk --no-cache add git ca-certificates
+RUN sed -i "s/dl-cdn.alpinelinux.org/${APK_REP}/g" /etc/apk/repositories \
+    && apk --no-cache add git ca-certificates
 
 WORKDIR /go/src/go-netdisk/
 COPY . .
