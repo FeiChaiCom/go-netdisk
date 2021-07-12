@@ -7,12 +7,12 @@ metadata:
 spec:
   containers:
     - name: go-netdisk
-      image: feichaicom/go-netdisk:v1.0.3
+      image: feichaicom/go-netdisk:v1.0.4
       imagePullPolicy: IfNotPresent
       command: ["/start"]
       env:
         - name: PORT
-          value: 5000
+          value: "5000"
         - name: DATABASE_URL
           value: "mysql://miya:66666666@mysql:3306/mydb"
         - name: GCS_MYSQL_NAME

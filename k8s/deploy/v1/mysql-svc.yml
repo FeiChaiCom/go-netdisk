@@ -9,7 +9,7 @@ spec:
   volumes:
     - name: data-volume
       hostPath:
-        path: /data/mysql/
+        path: /data/mysql57/
         type: DirectoryOrCreate
     - name: config-volume
       configMap:
