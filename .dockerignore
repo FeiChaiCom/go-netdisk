@@ -1,5 +1,3 @@
-.*
-!web
-!k8s
-!scripts
+web
+scripts
 *.sql

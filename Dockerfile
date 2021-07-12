@@ -22,10 +22,8 @@ RUN addgroup -S gogo && adduser -S -G gogo gogo
 WORKDIR /app
 
 COPY --from=stage0 /go/src/go-netdisk/ .
-COPY ./k8s/go/entrypoint /entrypoint
-COPY ./k8s/go/start /start
-RUN chmod +x /entrypoint /start
-RUN chown -R gogo /app
+COPY ["./k8s/go/entrypoint", "./k8s/go/start", "/"]
+RUN chmod +x /entrypoint /start && chown -R gogo /app
 
 USER gogo
 
