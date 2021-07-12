@@ -4,11 +4,11 @@ set -o errexit
 set -o pipefail
 set -o nounset
 
-until nc -z -v -w30 ${MYSQL_SERVICE_HOST} ${MYSQL_SERVICE_PORT}
-do
-  echo "Waiting a second until MySQL is receiving connections..."
-  sleep 2
-done
+#until nc -z -v -w30 ${MYSQL_SERVICE_HOST} ${MYSQL_SERVICE_PORT}
+#do
+#  echo "Waiting a second until MySQL is receiving connections..."
+#  sleep 2
+#done
 
 >&2 echo 'MySQL is available'
 
