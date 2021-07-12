@@ -1,0 +1,31 @@
+apiVersion: v1
+data:
+  my-config.cnf: |
+    [mysqld]
+    max_connections = 200
+    read_buffer_size = 1048576
+    character-set-server = utf8mb4
+    collation-server = utf8mb4_unicode_ci
+
+    [mysql]
+    default-character-set=utf8mb4
+
+    [client]
+    default-character-set=utf8mb4
+kind: ConfigMap
+metadata:
+  creationTimestamp: "2021-06-19T10:51:40Z"
+  managedFields:
+  - apiVersion: v1
+    fieldsType: FieldsV1
+    fieldsV1:
+      f:data:
+        .: {}
+        f:my-config.cnf: {}
+    manager: kubectl-create
+    operation: Update
+    time: "2021-06-19T10:51:40Z"
+  name: mysql-config
+  namespace: default
+  resourceVersion: "13860"
+  uid: 0ac90f03-2165-4bbc-afdc-c7c4b3b47064

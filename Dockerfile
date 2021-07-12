@@ -14,12 +14,21 @@ COPY . .
 RUN go env \
     && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o server .
 
+
 FROM alpine:latest
 
-WORKDIR /root/
+RUN addgroup -S gogo && adduser -S -G gogo gogo
 
-COPY --from=stage0 /go/src/go-netdisk/ ./
+WORKDIR /app
+
+COPY --from=stage0 /go/src/go-netdisk/ .
+COPY ./k8s/go/entrypoint /entrypoint
+COPY ./k8s/go/start /start
+RUN chmod +x /entrypoint /start
+RUN chown -R gogo /app
+
+USER gogo
 
 EXPOSE 5000
 
-ENTRYPOINT ./server -c .envs/docker.yaml
+ENTRYPOINT ["/entrypoint"]

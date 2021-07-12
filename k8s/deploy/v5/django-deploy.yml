@@ -1,0 +1,76 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: go-netdisk
+  labels:
+    app: backend
+    version: v1.0.0
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: go
+  template:
+    metadata:
+      name: backend-api
+      labels:
+        app: go
+        version: v1.0.0
+    spec:
+      volumes:
+        # collect static files to tmp dir
+        - name: staticfiles
+          emptyDir: {}
+        - name: uploadfiles
+          persistentVolumeClaim:
+            claimName: nfs-pvc 
+        # mount nfs dir to media dir
+        # - name: nfs-volume
+        #  nfs:
+        #    server: 10.206.0.9 
+        #    path: /data/nfs
+      containers:
+        - name: go-netdisk
+          image: feichaicom/go-netdisk:v1.0.1
+          imagePullPolicy: IfNotPresent
+          # imagePullPolicy: Always
+          command:
+            - /start
+          envFrom:
+            - configMapRef:
+                name: go-config
+            - secretRef:
+                name: go-secret
+          ports:
+            - name: web-port
+              containerPort: 5000
+          readinessProbe:
+            # ensure traffic does not reach a container that is not ready for it
+            httpGet:
+              path: /readiness
+              port: web-port
+            initialDelaySeconds: 5
+            periodSeconds: 3
+          volumeMounts:
+            - name: uploadfiles
+              mountPath: /app/media
+            - name: staticfiles
+              mountPath: /app/staticfiles
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: go-netdisk
+spec:
+  type: NodePort
+  selector:
+    app: go
+    version: v1.0.0
+  ports:
+    - name: http
+      # Which port on the node is the service available through?
+      nodePort: 30080
+      # Inside the cluster, what port does the service expose?
+      port: 5000
+      # Which port do pods selected by this service expose?
+      targetPort: 5000

@@ -1,0 +1,41 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: go-netdisk
+  labels:
+    app: go
+spec:
+  containers:
+    - name: go-netdisk
+      image: feichaicom/go-netdisk:v1.0.3
+      imagePullPolicy: IfNotPresent
+      command: ["/start"]
+      env:
+        - name: DJANGO_SETTINGS_MODULE
+          value: "config.settings.production"
+        - name: DATABASE_URL
+          value: "mysql://miya:66666666@mysql:3306/mydb"
+        - name: MYSQL_DATABASE
+          value: mydb
+        - name: MYSQL_PORT
+          value: "3306"
+        - name: MYSQL_PASSWORD
+          value: "66666666"
+        - name: MYSQL_USER
+          value: miya
+        - name: MYSQL_HOST
+          value: mysql
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: go
+spec:
+  ports:
+    - name: http
+      port: 5000
+      targetPort: 5000 
+      nodePort: 31080
+  selector:
+    app: go
+  type: NodePort
