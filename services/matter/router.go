@@ -7,8 +7,8 @@ import (
 
 // Add matter apis to api group
 func RegisterMatterGroup(rg *gin.RouterGroup) {
-	//users := rg.Group("/matter/").Use(middleware.JWTLoginRequired())
-	users := rg.Group("/matter/").Use(middleware.LoginRequired)
+	users := rg.Group("/matter/").Use(middleware.JWTLoginRequired())
+	// users := rg.Group("/matter/").Use(middleware.LoginRequired)
 	{
 		users.GET("page/", PageHandler)
 		users.GET("get_detail/", DetailHandler)
