@@ -8,6 +8,7 @@ RUN sed -i "s/dl-cdn.alpinelinux.org/${APK_REP}/g" /etc/apk/repositories \
     && apk --no-cache add git ca-certificates
 
 WORKDIR /go/src/go-netdisk/
+
 COPY . .
 
 RUN go env \

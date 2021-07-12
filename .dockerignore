@@ -1,0 +1,5 @@
+.*
+!web
+!k8s
+!scripts
+*.sql
