@@ -18,7 +18,7 @@ RUN go env \
 FROM node as stage1
 
 WORKDIR /root/
-ADD web .
+COPY web .
 
 RUN cd web && npm install \
     && npm run build
