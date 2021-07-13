@@ -7,7 +7,7 @@ metadata:
 spec:
   containers:
     - name: go-netdisk
-      image: feichaicom/go-netdisk:v1.0.5
+      image: feichaicom/go-netdisk:v1.0.6
       imagePullPolicy: IfNotPresent
       command: ["/start"]
       env:
