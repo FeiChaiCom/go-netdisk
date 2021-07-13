@@ -20,7 +20,8 @@ FROM node as stage1
 WORKDIR /root/web
 COPY web .
 
-RUN npm install \
+RUN npm config set registry=http://registry.npm.taobao.org \
+    && npm install \
     && npm run build
 
 RUN addgroup -S gogo && adduser -S -G gogo gogo
