@@ -24,17 +24,20 @@ RUN npm config set registry=http://registry.npm.taobao.org \
     && npm install \
     && npm run build
 
-RUN addgroup -S goapp && adduser -S goapp -G goapp
+FROM alpine
 
 WORKDIR /app
 
 COPY --from=stage0 /go/src/go-netdisk/ .
 COPY --from=stage1 /root/static ./static
 COPY ["./k8s/go/entrypoint", "./k8s/go/start", "/"]
+
+RUN addgroup --system saas && adduser --system --group saas
+
 RUN chmod +x /entrypoint /start \
     && chown -R saas /app
 
-USER goapp
+USER saas
 
 EXPOSE 5000
 
