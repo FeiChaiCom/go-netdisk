@@ -23,7 +23,7 @@ import i18nMessage from './common/i18n'
 
 //将整个eleme 都引进来了。
 import ElementUI from 'element-ui'
-import BrowserUtil from './common/util/BrowserUtil'
+// import BrowserUtil from './common/util/BrowserUtil'
 
 
 Vue.use(VueResource)
