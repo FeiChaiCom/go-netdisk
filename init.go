@@ -52,6 +52,12 @@ func initDatabase() {
 		panic(err)
 	}
 
+	perm := &db.Permission{}
+	cfg.DB.Where(db.Permission{UserName: cfg.ENV.SuperUser}).Attrs(db.Permission{
+		Role: db.ADMINISTRATOR,
+	}).FirstOrCreate(&perm)
+	log.Printf("GetOrCreate permission: %s\n", utils.PrettyJson(perm))
+
 	prefer := &db.Preference{}
 	cfg.DB.Where(db.Preference{Name: "netdisk"}).Attrs(db.Preference{
 		AllowRegister: true,

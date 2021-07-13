@@ -17,7 +17,7 @@ const (
 type Permission struct {
 	UUID        uuid.UUID `gorm:"column:uuid;primaryKey;type:varchar(36)" json:"uuid"`
 	UserName    string    `gorm:"column:username;type:varchar(45) not null" json:"username"`
-	ProjectUUID uuid.UUID `gorm:"column:project_uuid;type:varchar(36) not null" json:"projectUuid"`
+	ProjectUUID uuid.UUID `gorm:"column:project_uuid;type:varchar(36)" json:"projectUuid"`
 	Role        string    `gorm:"column:role;type:varchar(45);default:USER" json:"role"`
 	CreateAt    time.Time `gorm:"column:create_at" json:"createAt"`
 	CreateBy    string    `gorm:"column:create_by;type:varchar(45) not null" json:"createBy"`
