@@ -28,11 +28,12 @@ FROM alpine
 
 WORKDIR /app
 
+
 COPY --from=stage0 /go/src/go-netdisk/ .
 COPY --from=stage1 /root/static ./static
 COPY ["./k8s/go/entrypoint", "./k8s/go/start", "/"]
 
-RUN addgroup --system saas && adduser --system --group saas
+RUN addgroup --system saas && adduser -S -G saas saas
 
 RUN chmod +x /entrypoint /start \
     && chown -R saas /app
