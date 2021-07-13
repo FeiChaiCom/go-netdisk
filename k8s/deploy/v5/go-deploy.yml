@@ -69,7 +69,7 @@ spec:
   ports:
     - name: http
       # Which port on the node is the service available through?
-      nodePort: 30080
+      nodePort: 31080
       # Inside the cluster, what port does the service expose?
       port: 5000
       # Which port do pods selected by this service expose?
