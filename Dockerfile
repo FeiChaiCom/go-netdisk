@@ -24,7 +24,7 @@ RUN npm config set registry=http://registry.npm.taobao.org \
     && npm install \
     && npm run build
 
-RUN addgroup -S gogroup && adduser -S -G goapp gogroup
+RUN addgroup -S gogroup && adduser -G gogroup -S goapp
 
 WORKDIR /app
 
