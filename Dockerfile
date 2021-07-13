@@ -20,7 +20,7 @@ FROM node as stage1
 WORKDIR /root/web
 COPY web .
 
-RUN cd web && npm install \
+RUN npm install \
     && npm run build
 
 RUN addgroup -S gogo && adduser -S -G gogo gogo
