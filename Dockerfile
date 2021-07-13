@@ -24,16 +24,17 @@ RUN npm config set registry=http://registry.npm.taobao.org \
     && npm install \
     && npm run build
 
-RUN addgroup -S gogo && adduser -S -G gogo gogo
+RUN addgroup -S gogroup && adduser -S -G goapp gogroup
 
 WORKDIR /app
 
 COPY --from=stage0 /go/src/go-netdisk/ .
 COPY --from=stage1 /root/static ./static
 COPY ["./k8s/go/entrypoint", "./k8s/go/start", "/"]
-RUN chmod +x /entrypoint /start && chown -R gogo /app
+RUN chmod +x /entrypoint /start \
+    && chown -R goapp /app
 
-USER gogo
+USER goapp
 
 EXPOSE 5000
 
