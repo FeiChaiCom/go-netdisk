@@ -47,7 +47,7 @@ spec:
           readinessProbe:
             # ensure traffic does not reach a container that is not ready for it
             httpGet:
-              path: /readiness
+              path: /monitors/healthz
               port: web-port
             initialDelaySeconds: 5
             periodSeconds: 3
