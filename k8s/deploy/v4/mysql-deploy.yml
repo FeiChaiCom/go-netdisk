@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql
+  labels:
+    app: mysql
+spec:
+  selector:
+    matchLabels:
+      app: mysql
+  replicas: 1
+  template:
+    metadata:
+      name: mysql
+      labels:
+        app: mysql
+    spec:
+      containers:
+        - name: mysql
+          image: mysql:5.7
+          envFrom:
+            - secretRef:
+                name: mysql-secret
+          volumeMounts:
+            - name: data-volume
+              mountPath: /var/lib/mysql
+            - name: config-volume
+              mountPath: /etc/mysql/conf.d
+      volumes:
+        - name: data-volume
+          hostPath:
+            path: /data/mysql57
+            type: DirectoryOrCreate
+        - name: config-volume
+          configMap:
+            name: mysql-config
+            optional: true
+      nodeSelector:
+        mod: db
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql
+spec:
+  selector:
+    app: mysql
+  ports:
+    - name: tcp
+      port: 3306
+      targetPort: 3306
+  type: ClusterIP

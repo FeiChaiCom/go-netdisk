@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: go-netdisk
+  labels:
+    app: backend
+    version: v1.0.0
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: go
+  template:
+    metadata:
+      name: backend-api
+      labels:
+        app: go
+        version: v1.0.0
+    spec:
+      containers:
+        - name: go-netdisk
+          image: feichaicom/go-netdisk:v1.1.2
+          imagePullPolicy: IfNotPresent
+          command: ["/start"]
+          envFrom:
+            - configMapRef:
+                name: go-config
+            - secretRef:
+                name: go-secret
+          ports:
+            - containerPort: 5000
+              name: gin
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: go-netdisk
+spec:
+  ports:
+    - name: http
+      port: 5000
+      targetPort: 5000
+      nodePort: 31080
+  selector:
+    app: go
+    version: v1.0.0
+  type: NodePort

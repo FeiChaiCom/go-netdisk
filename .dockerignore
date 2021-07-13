@@ -1,0 +1,6 @@
+.git
+scripts
+media
+static
+templates
+*.sql

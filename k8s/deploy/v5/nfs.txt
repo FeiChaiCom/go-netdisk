@@ -1,0 +1,18 @@
+# Ubuntu 20.04
+
+# install nfs server on node-master
+sudo mkdir /data/nfs
+sudo apt install nfs-kernel-server
+sudo chown nobody:nogroup /data/nfs/
+sudo chmod 777 /data/nfs
+sudo systemctl restart nfs-kernel-server
+
+# install nfs driver on node-worker
+sudo apt install nfs-common
+
+# sudo vim /etc/exports
+# allow mount from nodes
+/data/nfs 10.32.0.0/24(rw,sync,no_subtree_check)
+/data/nfs 10.36.0.0/24(rw,sync,no_subtree_check)
+/data/nfs 10.206.0.0/24(rw,sync,no_subtree_check)
+

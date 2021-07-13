@@ -8,10 +8,10 @@ import (
 func RegisterTestGroup(rg *gin.RouterGroup) {
 	users := rg.Group("/tests/")
 
-	//if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
-	//	fmt.Println("bind register of demo")
-	//	_ = v.RegisterValidation("birthDayValidator", birthDayValidator)
-	//}
+	// if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
+	// 	fmt.Println("bind register of demo")
+	// 	_ = v.RegisterValidation("birthDayValidator", birthDayValidator)
+	// }
 
 	users.GET("test_get/:uid/*action", testGetUser)
 	users.GET("test_redirect/", testRedirect)
