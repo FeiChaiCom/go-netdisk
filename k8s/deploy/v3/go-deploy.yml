@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
         - name: go-netdisk
-          image: feichaicom/go-netdisk:v1.0.0
+          image: feichaicom/go-netdisk:v1.1.2
           imagePullPolicy: IfNotPresent
           command: ["/start"]
           envFrom:
@@ -29,19 +29,4 @@ spec:
                 name: go-secret
           ports:
             - containerPort: 5000
-              name: gunicorn
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: go-netdisk
-spec:
-  ports:
-    - name: http
-      port: 5000
-      targetPort: 5000
-      nodePort: 31080
-  selector:
-    app: go
-    version: v1.0.0
-  type: NodePort
+              name: gin

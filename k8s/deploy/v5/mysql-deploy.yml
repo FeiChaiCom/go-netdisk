@@ -16,7 +16,7 @@ spec:
         app: mysql
     spec:
       containers:
-        - name: mysql57
+        - name: mysql
           image: mysql:5.7
           envFrom:
             - secretRef:
@@ -29,7 +29,7 @@ spec:
       volumes:
         - name: data-volume
           hostPath:
-            path: /data/mysql
+            path: /data/mysql57
             type: DirectoryOrCreate
         - name: config-volume
           configMap:
