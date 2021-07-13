@@ -29,7 +29,7 @@ RUN addgroup -S gogo && adduser -S -G gogo gogo
 WORKDIR /app
 
 COPY --from=stage0 /go/src/go-netdisk/ .
-COPY --from=stage1 /root/static .
+COPY --from=stage1 /root/static ./static
 COPY ["./k8s/go/entrypoint", "./k8s/go/start", "/"]
 RUN chmod +x /entrypoint /start && chown -R gogo /app
 
