@@ -17,7 +17,7 @@ RUN go env \
 
 FROM node as stage1
 
-WORKDIR /root/
+WORKDIR /root/web
 COPY web .
 
 RUN cd web && npm install \
