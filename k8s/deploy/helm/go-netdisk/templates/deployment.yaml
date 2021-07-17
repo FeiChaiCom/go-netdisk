@@ -19,6 +19,7 @@ spec:
       {{- end }}
       labels:
         {{- include "go-netdisk.selectorLabels" . | nindent 8 }}
+        version: v1.0.0
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
@@ -27,24 +28,51 @@ spec:
       serviceAccountName: {{ include "go-netdisk.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      volumes:
+        # collect static files to tmp dir
+        - name: staticfiles
+          emptyDir: {}
+        - name: uploadfiles
+          {{- if .Values.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ .Values.persistence.claimName }}
+          {{- else }}
+          hostPath:
+            path: {{ .Values.uploadDir }}
+            type: DirectoryOrCreate
+          {{- end }}
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - /start
+          envFrom:
+            - configMapRef:
+                name: go-config-{{ .Release.Name }}
+            - secretRef:
+                name: go-secret-{{ .Release.Name }}
           ports:
-            - name: http
-              containerPort: 80
+            - name: web-port
+              containerPort: 5000
               protocol: TCP
+          volumeMounts:
+            - name: uploadfiles
+              mountPath: /app/media
+            - name: staticfiles
+              mountPath: /app/staticfiles
           livenessProbe:
             httpGet:
               path: /
-              port: http
+              port: web-port
           readinessProbe:
             httpGet:
-              path: /
-              port: http
+              path: /api/monitors/healthz
+              port: web-port
+            initialDelaySeconds: 5
+            periodSeconds: 3
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}
