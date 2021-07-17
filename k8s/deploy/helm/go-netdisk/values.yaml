@@ -84,13 +84,13 @@ affinity: {}
 
 persistence:
   enabled: true
-  size: 10Gi
+  size: "10Gi"
   claimName: nfs-pvc
   storageClass: slow
   reclaimPolicy: Retain
   accessMode: ReadWriteMany
   nfsPath: /data/nfs
-  nfsServer: 10.206.0.9
+  nfsServer: "10.206.0.9"
 
 uploadDir: /data/uploads
 
@@ -101,5 +101,5 @@ mysql:
   port: 3306
   database: mydb
   user: miya
-  password: 66666666
-  rootPassword: 88888888
+  password: "66666666"
+  rootPassword: "88888888"
