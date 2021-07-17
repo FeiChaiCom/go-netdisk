@@ -35,7 +35,7 @@ spec:
         - name: uploadfiles
           {{- if .Values.persistence.enabled }}
           persistentVolumeClaim:
-            claimName: {{ .Values.persistence.claimName }}
+            claimName: {{ .Values.persistence.claimName }}-{{ .Release.Name }}
           {{- else }}
           hostPath:
             path: {{ .Values.uploadDir }}

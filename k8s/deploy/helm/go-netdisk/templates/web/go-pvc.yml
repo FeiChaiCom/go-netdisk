@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: nfs-pvc
+  name: nfs-pvc-{{ .Release.Name }}
 spec:
   accessModes:
     - {{ .Values.persistence.accessMode }}

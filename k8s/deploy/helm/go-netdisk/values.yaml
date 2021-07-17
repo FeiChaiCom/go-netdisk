@@ -96,3 +96,10 @@ uploadDir: /data/uploads
 
 # custom
 settings: config.settings.production
+
+mysql:
+  port: 3306
+  database: mydb
+  user: miya
+  password: 66666666
+  rootPassword: 88888888

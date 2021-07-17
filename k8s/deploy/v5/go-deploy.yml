@@ -23,7 +23,7 @@ spec:
           emptyDir: {}
         - name: uploadfiles
           persistentVolumeClaim:
-            claimName: nfs-pvc 
+            claimName: nfs-pvc-{{ .Release.Name }}
         # mount nfs dir to media dir
         # - name: nfs-volume
         #  nfs:
