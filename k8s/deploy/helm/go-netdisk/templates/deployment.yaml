@@ -1,0 +1,90 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "go-netdisk.fullname" . }}
+  labels:
+    {{- include "go-netdisk.labels" . | nindent 4 }}
+    version: v1.0.0
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "go-netdisk.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "go-netdisk.selectorLabels" . | nindent 8 }}
+        version: v1.0.0
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "go-netdisk.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      volumes:
+        # collect static files to tmp dir
+        - name: staticfiles
+          emptyDir: {}
+        - name: uploadfiles
+          {{- if .Values.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ .Values.persistence.claimName }}-{{ .Release.Name }}
+          {{- else }}
+          hostPath:
+            path: {{ .Values.uploadDir }}
+            type: DirectoryOrCreate
+          {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - /start
+          envFrom:
+            - configMapRef:
+                name: go-config-{{ .Release.Name }}
+            - secretRef:
+                name: go-secret-{{ .Release.Name }}
+          ports:
+            - name: web-port
+              containerPort: 5000
+              protocol: TCP
+          volumeMounts:
+            - name: uploadfiles
+              mountPath: /app/media
+            - name: staticfiles
+              mountPath: /app/staticfiles
+          livenessProbe:
+            httpGet:
+              path: /
+              port: web-port
+          readinessProbe:
+            httpGet:
+              path: /api/monitors/healthz
+              port: web-port
+            initialDelaySeconds: 5
+            periodSeconds: 3
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: go-config-{{ .Release.Name }}
+data:
+  PORT: {{ .Values.service.port | quote }}
+  DJANGO_SETTINGS_MODULE: {{ .Values.settings }}
