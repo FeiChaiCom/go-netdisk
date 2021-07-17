@@ -5,29 +5,3 @@ metadata:
 data:
   PORT: {{ .Values.service.port | quote }}
   DJANGO_SETTINGS_MODULE: {{ .Values.settings }}
-l
-
-
-l
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
