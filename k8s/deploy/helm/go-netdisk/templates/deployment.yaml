@@ -4,6 +4,7 @@ metadata:
   name: {{ include "go-netdisk.fullname" . }}
   labels:
     {{- include "go-netdisk.labels" . | nindent 4 }}
+    version: v1.0.0
 spec:
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
