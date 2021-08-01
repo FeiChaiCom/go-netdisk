@@ -1,11 +1,12 @@
-package db
+package models
 
 import (
 	"errors"
 	"fmt"
 	"github.com/alexandrevicenzi/unchained"
 	"github.com/satori/go.uuid"
-	cfg "go-netdisk/config"
+	"go-netdisk/settings"
+	"go-netdisk/db"
 	"gorm.io/gorm"
 	"math"
 	"time"
@@ -74,7 +75,7 @@ func GetOrCreateUser(username string, isSuperUser bool) (user *User, err error) 
 	}
 
 	// Not found, then create a new user
-	password, err := unchained.MakePassword(cfg.ENV.DefaultPassword, "", unchained.Argon2Hasher)
+	password, err := unchained.MakePassword(settings.ENV.DefaultPassword, "", unchained.Argon2Hasher)
 	if err != nil {
 		return user, err
 	}
@@ -90,23 +91,23 @@ func GetOrCreateUser(username string, isSuperUser bool) (user *User, err error) 
 		Role:     role,
 	}
 
-	err = cfg.DB.Create(user).Error
+	err = db.DB.Create(user).Error
 
 	return
 }
 
 func GetUserByUUID(uuid string) (user *User, err error) {
-	err = cfg.DB.First(&user, "uuid = ?", uuid).Error
+	err = db.DB.First(&user, "uuid = ?", uuid).Error
 	return
 }
 
 func GetUserByName(username string) (user *User, err error) {
-	err = cfg.DB.Where("username = ?", username).First(&user).Error
+	err = db.DB.Where("username = ?", username).First(&user).Error
 	return
 }
 
 func GetAllUsers(page int, pageSize int, order string) (users []*User, totalItems int64, totalPage int) {
-	tx := cfg.DB.Model(&User{})
+	tx := db.DB.Model(&User{})
 	tx.Count(&totalItems)
 
 	switch {
@@ -154,7 +155,7 @@ func Register(r *RegisterParam) (user *User, err error) {
 		Username: r.Username,
 		Password: password,
 	}
-	err = cfg.DB.Create(user).Error
+	err = db.DB.Create(user).Error
 
 	return
 }

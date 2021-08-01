@@ -3,9 +3,11 @@ package matter
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
-	cfg "go-netdisk/config"
-	"go-netdisk/models/db"
-	"go-netdisk/models/form"
+	"go-netdisk/db"
+	"go-netdisk/settings"
+
+	"go-netdisk/db/form"
+	"go-netdisk/db/models"
 	R "go-netdisk/render"
 	"log"
 	"os"
@@ -22,7 +24,7 @@ func PageHandler(c *gin.Context) {
 	}
 
 	username := c.GetString("username")
-	matters, totalItems, totalPages := db.GetAllMatters(username, p.PUUID, p.Name, p.Page, p.PageSize, p.OrderCreateTime)
+	matters, totalItems, totalPages := models.GetAllMatters(username, p.PUUID, p.Name, p.Page, p.PageSize, p.OrderCreateTime)
 	R.Ok(c, gin.H{
 		"totalPage":  totalPages,
 		"totalItems": totalItems,
@@ -38,7 +40,7 @@ func DeleteMatterHandler(c *gin.Context) {
 		return
 	}
 
-	if err := db.DeleteMatterByUUID(p.UUID); err != nil {
+	if err := models.DeleteMatterByUUID(p.UUID); err != nil {
 		R.Error(c, err)
 		return
 	}
@@ -55,15 +57,15 @@ func DetailHandler(c *gin.Context) {
 		return
 	}
 
-	matter, err := db.GetMatterByUUID(p.UUID)
+	matter, err := models.GetMatterByUUID(p.UUID)
 	if err != nil {
 		R.Error(c, err)
 		return
 	}
 
 	// Add parent info
-	if matter.PUUID != cfg.MatterRootUUID {
-		parent, _ := db.GetMatterByUUID(matter.PUUID)
+	if matter.PUUID != settings.MatterRootUUID {
+		parent, _ := models.GetMatterByUUID(matter.PUUID)
 		R.Ok(c, form.SubDirDetailMatter{Matter: matter, Parent: parent})
 		return
 	}
@@ -84,21 +86,21 @@ func UploadFileHandler(c *gin.Context) {
 
 	// Save file to local dir
 	parentDir := ""
-	if p.PUUID != cfg.MatterRootUUID {
-		if pDir, err := db.GetMatterByUUID(p.PUUID); err == nil {
+	if p.PUUID != settings.MatterRootUUID {
+		if pDir, err := models.GetMatterByUUID(p.PUUID); err == nil {
 			parentDir = pDir.Path
 		}
 	}
 
 	filePath := parentDir + "/" + p.File.Filename
-	realFilePath := strings.Join([]string{cfg.ENV.MatterRoot, filePath}, "/")
+	realFilePath := strings.Join([]string{settings.ENV.MatterRoot, filePath}, "/")
 	if err := c.SaveUploadedFile(p.File, realFilePath); err != nil {
 		R.Error(c, err)
 		return
 	}
 
 	username := c.GetString("username")
-	matter, err := db.CreateMatter(username, p.UserUUID, p.PUUID, filePath, p.File)
+	matter, err := models.CreateMatter(username, p.UserUUID, p.PUUID, filePath, p.File)
 	if err != nil {
 		R.Error(c, err)
 		return
@@ -113,7 +115,7 @@ func DownloadFileHandler(c *gin.Context) {
 	name := c.DefaultQuery("name", "")
 	matterUUID := c.Param("uuid")
 
-	matter, err := db.GetMatterByUUID(matterUUID)
+	matter, err := models.GetMatterByUUID(matterUUID)
 	if err != nil {
 		R.Error(c, err)
 		return
@@ -123,13 +125,13 @@ func DownloadFileHandler(c *gin.Context) {
 		name = matter.Name
 	}
 
-	realPath := cfg.ENV.MatterRoot + matter.File
+	realPath := settings.ENV.MatterRoot + matter.File
 	c.FileAttachment(realPath, name)
 	// c.File(matter.Path)
 
 	// Increment download times
 	matter.Times++
-	cfg.DB.Save(matter)
+	db.DB.Save(matter)
 }
 
 // Create matter dir
@@ -141,20 +143,20 @@ func CreateDirectoryHandler(c *gin.Context) {
 
 	// Create dir in filesystem
 	parentDir := ""
-	if p.PUUID != cfg.MatterRootUUID {
-		if pDir, err := db.GetMatterByUUID(p.PUUID); err == nil {
+	if p.PUUID != settings.MatterRootUUID {
+		if pDir, err := models.GetMatterByUUID(p.PUUID); err == nil {
 			parentDir = pDir.Path
 		}
 	}
 
 	path := parentDir + "/" + p.Name
-	realPath := cfg.ENV.MatterRoot + path
+	realPath := settings.ENV.MatterRoot + path
 	if err := os.MkdirAll(realPath, 0755); err != nil {
 		log.Printf("mkdir <%s> error: %s", realPath, err)
 	}
 
 	username := c.GetString("username")
-	matterDir, err := db.CreateDirectory(username, p.UserUUID, p.PUUID, path, p.Name)
+	matterDir, err := models.CreateDirectory(username, p.UserUUID, p.PUUID, path, p.Name)
 	if err != nil {
 		R.Error(c, err)
 		return

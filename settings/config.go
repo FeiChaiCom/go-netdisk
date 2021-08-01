@@ -1,4 +1,4 @@
-package config
+package settings
 
 import (
 	"fmt"
@@ -10,7 +10,7 @@ import (
 
 var (
 	RunMode = "dev"
-	ENV     = &YamlConfig{}
+	ENV     = &Cfg{}
 )
 
 const (
@@ -22,23 +22,7 @@ const (
 	SimpleTime         = "2006-01-02 15:04:05"
 )
 
-func init() {
-	// dev/stag/prod.yaml
-	if RunMode = os.Getenv("BKPAAS_ENVIRONMENT"); RunMode == "" {
-		RunMode = "dev"
-	}
-
-	// Load settings from config file or env
-	LoadSettings(RunMode)
-	if err := viper.Unmarshal(ENV); err != nil {
-		panic(err)
-	}
-
-	// viper.Debug()
-	log.Println(utils.PrettyJson(ENV))
-}
-
-type YamlConfig struct {
+type Cfg struct {
 	Debug       bool   `mapstructure:"debug"`
 	RunMode     string `mapstructure:"runmode"`
 	NeedMigrate bool   `mapstructure:"needmigrate"`
@@ -87,7 +71,7 @@ type MysqlConfig struct {
 	Password string `mapstructure:"password"`
 }
 
-func bindEnvSettings() {
+func (cfg *Cfg) bindEnvSettings() {
 	_ = viper.BindEnv("port", "PORT")
 	_ = viper.BindEnv("runmode", "BKPAAS_ENVIRONMENT")
 
@@ -111,29 +95,56 @@ func bindEnvSettings() {
 
 }
 
-func setDefaultSettings() {
+func (cfg *Cfg) setDefaultSettings() {
 	viper.SetDefault("runmode", "dev")
 }
 
-func LoadSettings(fileName string) {
-	log.Printf("load settings for <%s> ...\n", RunMode)
+func (cfg *Cfg) LoadSettings() {
+
+	// dev/stag/prod.yaml
+	if RunMode = os.Getenv("BKPAAS_ENVIRONMENT"); RunMode == "" {
+		RunMode = "dev"
+		cfg.RunMode = "dev"
+	}
+
+	log.Printf("load settings for <%s> ...\n", cfg.RunMode)
 
 	viper.AddConfigPath(".envs")
-	viper.SetConfigName(fileName)
+	viper.SetConfigName(RunMode)
 	viper.SetConfigType("yaml")
 
 	// Auto get config from env
 	viper.AutomaticEnv()
 
 	// Bind env config
-	bindEnvSettings()
+	cfg.bindEnvSettings()
 
 	// Write default settings
-	setDefaultSettings()
+	cfg.setDefaultSettings()
 
 	// Read default config from yaml file
 	if err := viper.ReadInConfig(); err != nil {
 		panic(fmt.Errorf("Load config file error: %w \n", err))
 	}
 
+	// Load settings from config file or env
+	if err := viper.Unmarshal(ENV); err != nil {
+		panic(err)
+	}
+
+	// viper.Debug()
+	log.Println(utils.PrettyJson(ENV))
+}
+
+// GetCfg return the Cfg singleton
+func GetCfg() *Cfg {
+	if ENV != nil {
+		return ENV
+	}
+	return NewCfg()
+}
+
+func NewCfg() *Cfg {
+	return &Cfg{
+	}
 }

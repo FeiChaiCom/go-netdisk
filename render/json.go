@@ -2,7 +2,8 @@ package render
 
 import (
 	"github.com/gin-gonic/gin"
-	cfg "go-netdisk/config"
+	"go-netdisk/settings"
+
 	"go-netdisk/utils"
 	"log"
 	"net/http"
@@ -31,7 +32,7 @@ type Response struct {
 
 func JSONResponse(c *gin.Context, r *Response) {
 	// Log response data for debug
-	if cfg.ENV.Debug {
+	if settings.ENV.Debug {
 		log.Printf("---------------------\n"+
 			"FullPath:\t%s\n",
 			c.FullPath(),

@@ -1,7 +1,8 @@
-package config
+package db
 
 import (
 	"fmt"
+	"go-netdisk/settings"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -11,24 +12,26 @@ import (
 
 var DB *gorm.DB
 
-func InitDB() (err error) {
+func InitDB() (db *gorm.DB, err error) {
 	dsn := Dsn()
 
 	gormConfig := &gorm.Config{}
-	if ENV.Debug {
+	if settings.ENV.Debug {
 		gormConfig.Logger = logger.Default.LogMode(logger.Info)
 	}
 
-	DB, err = gorm.Open(mysql.Open(dsn), gormConfig)
+	mysqlDB, err := gorm.Open(mysql.Open(dsn), gormConfig)
+	DB = mysqlDB
+
 	return
 }
 
 func Dsn() string {
 	return fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local",
-		ENV.Mysql.Username,
-		ENV.Mysql.Password,
-		ENV.Mysql.Host,
-		ENV.Mysql.Port,
-		ENV.Mysql.Name,
+		settings.ENV.Mysql.Username,
+		settings.ENV.Mysql.Password,
+		settings.ENV.Mysql.Host,
+		settings.ENV.Mysql.Port,
+		settings.ENV.Mysql.Name,
 	)
 }

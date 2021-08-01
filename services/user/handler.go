@@ -2,8 +2,8 @@ package user
 
 import (
 	"github.com/gin-gonic/gin"
-	"go-netdisk/models/db"
-	"go-netdisk/models/form"
+	"go-netdisk/db/form"
+	"go-netdisk/db/models"
 	R "go-netdisk/render"
 	"net/http"
 )
@@ -16,7 +16,7 @@ func PageHandler(c *gin.Context) {
 		return
 	}
 
-	users, totalItems, totalPages := db.GetAllUsers(p.Page, p.PageSize, p.OrderCreateTime)
+	users, totalItems, totalPages := models.GetAllUsers(p.Page, p.PageSize, p.OrderCreateTime)
 
 	R.Ok(c, gin.H{
 		"totalPage":  totalPages,
@@ -27,7 +27,7 @@ func PageHandler(c *gin.Context) {
 
 func Me(c *gin.Context) {
 	username := c.GetString("username")
-	me, err := db.GetUserByName(username)
+	me, err := models.GetUserByName(username)
 	if err != nil {
 		R.Error(c, err)
 		return

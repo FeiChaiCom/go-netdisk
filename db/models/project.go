@@ -1,24 +1,16 @@
-package db
+package models
 
 import (
 	uuid "github.com/satori/go.uuid"
-	cfg "go-netdisk/config"
+	"go-netdisk/db"
 	"gorm.io/gorm"
 	"time"
 )
 
-// Role types
-const (
-	USER          = "USER"
-	PROJECT_ADMIN = "PROJECT_ADMIN"
-	ADMINISTRATOR = "ADMINISTRATOR"
-)
-
-type Permission struct {
+type Project struct {
 	UUID        uuid.UUID `gorm:"column:uuid;primaryKey;type:varchar(36)" json:"uuid"`
-	UserName    string    `gorm:"column:username;type:varchar(45) not null" json:"username"`
-	ProjectUUID uuid.UUID `gorm:"column:project_uuid;type:varchar(36)" json:"projectUuid"`
-	Role        string    `gorm:"column:role;type:varchar(45);default:USER" json:"role"`
+	Name        string    `gorm:"column:name;type:varchar(64) not null;comment:项目名称" json:"name"`
+	Description string    `gorm:"column:description;type:varchar(255);default:'';comment:项目描述" json:"description"`
 	CreateAt    time.Time `gorm:"column:create_at" json:"createAt"`
 	CreateBy    string    `gorm:"column:create_by;type:varchar(45) not null" json:"createBy"`
 	UpdateAt    time.Time `gorm:"column:update_at" json:"updateAt"`
@@ -28,19 +20,19 @@ type Permission struct {
 	DeletedBy   string    `gorm:"column:create_by;type:varchar(45)" json:"DeletedBy"`
 }
 
-func (Permission) TableName() string {
-	return "permission"
+func (Project) TableName() string {
+	return "project"
 }
 
-func (obj *Permission) BeforeCreate(tx *gorm.DB) (err error) {
+func (obj *Project) BeforeCreate(tx *gorm.DB) (err error) {
 	obj.UUID = uuid.NewV4()
 	obj.CreateAt = time.Now()
 	obj.UpdateAt = time.Now()
 	return nil
 }
 
-// Get user's permission
-func GetPermissionByUsername(username string) (permission *Permission, err error) {
-	err = cfg.DB.First(&permission, "username = ?", username).Error
+// Get user's project
+func GetProjectByUsername(username string) (project *Project, err error) {
+	err = db.DB.First(&project, "username = ?", username).Error
 	return
 }

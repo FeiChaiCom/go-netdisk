@@ -1,8 +1,8 @@
-package db
+package models
 
 import (
 	uuid "github.com/satori/go.uuid"
-	cfg "go-netdisk/config"
+	"go-netdisk/db"
 	"gorm.io/gorm"
 	"time"
 )
@@ -35,6 +35,6 @@ func (obj *Preference) BeforeCreate(tx *gorm.DB) (err error) {
 
 // Get preference record by uuid
 func GetPreferenceByUUID(uuid string) (prefer *Preference, err error) {
-	err = cfg.DB.First(&prefer, "uuid = ?", uuid).Error
+	err = db.DB.First(&prefer, "uuid = ?", uuid).Error
 	return
 }

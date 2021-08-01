@@ -4,8 +4,9 @@ import (
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/parnurzeal/gorequest"
-	cfg "go-netdisk/config"
-	"go-netdisk/models/db"
+	"go-netdisk/db/models"
+
+	"go-netdisk/settings"
 	"net/http"
 	"strings"
 )
@@ -27,7 +28,7 @@ type UserFullInfoData struct {
 	PostName  string `json:"post_name"`
 }
 
-var LoginEnv = cfg.ENV.Login
+var LoginEnv = settings.ENV.Login
 
 func LoginRequired(c *gin.Context) {
 	session := sessions.Default(c)
@@ -71,7 +72,7 @@ func LoginRequired(c *gin.Context) {
 		return
 	}
 
-	if _, err := db.GetOrCreateUser(userInfo.Data.Username, false); err != nil {
+	if _, err := models.GetOrCreateUser(userInfo.Data.Username, false); err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"message": "server error, create user info failed"})
 		return
 	}

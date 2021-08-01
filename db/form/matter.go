@@ -1,7 +1,7 @@
 package form
 
 import (
-	"go-netdisk/models/db"
+	"go-netdisk/db/models"
 	"mime/multipart"
 )
 
@@ -33,11 +33,11 @@ type CreateDirParam struct {
 }
 
 type SubDirDetailMatter struct {
-	*db.Matter
-	Parent *db.Matter `json:"parent"`
+	*models.Matter
+	Parent *models.Matter `json:"parent"`
 }
 
 type RootDirDetailMatter struct {
-	*db.Matter
+	*models.Matter
 	Parent *string `json:"parent"`
 }
