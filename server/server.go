@@ -124,11 +124,10 @@ func (s *Server) Run() error {
 	wg.Add(1)
 
 	// handle http shutdown on server context done
-	ctx := s.context
 	go func() {
 		defer wg.Done()
 
-		<-ctx.Done()
+		<-s.context.Done()
 		if err := s.httpSrv.Shutdown(context.Background()); err != nil {
 			log.Printf("Failed to shutdown server: %s", err)
 		}
@@ -143,6 +142,7 @@ func (s *Server) Run() error {
 		return err
 	}
 
+	log.Printf("before wait")
 	wg.Wait()
 
 	return nil
