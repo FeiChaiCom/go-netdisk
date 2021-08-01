@@ -34,6 +34,7 @@ package gormstore
 
 import (
 	"encoding/base32"
+	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -225,6 +226,7 @@ func (st *GormStore) MaxLength(l int) {
 
 // Cleanup deletes expired sessions
 func (st *GormStore) Cleanup() {
+	log.Printf("Session clean up: %s\n", time.Now())
 	st.sessionTable().Delete(&gormSession{}, "expires_at <= ?", time.Now())
 }
 

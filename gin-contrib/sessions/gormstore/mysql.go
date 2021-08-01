@@ -3,6 +3,7 @@ package gormstore
 import (
 	"github.com/gin-contrib/sessions"
 	"gorm.io/gorm"
+	"log"
 	"time"
 )
 
@@ -33,6 +34,7 @@ func (c *store) PeriodicCleanup(interval time.Duration, quit <-chan struct{}) {
 		case <-t.C:
 			c.Cleanup()
 		case <-quit:
+			log.Printf("quit PeriodicCleanup task\n")
 			return
 		}
 	}

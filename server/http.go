@@ -31,37 +31,42 @@ func (s *Server) initServerDirs() {
 	}
 }
 
-func (s *Server) newGinEngine() *gin.Engine {
+// newSession init session for gin
+func (s *Server) newSession(engine *gin.Engine) {
+	// store := cookie.NewStore([]byte("secret"))
+	// store, _ := redis.NewStore(10, "tcp", "localhost:6379", "", []byte("secret"))
+
+	s.store, _ = gormstore.NewStore(db.DB, gormstore.Options{
+		TableName:       "gin_sessions",
+		SkipCreateTable: false,
+	}, []byte("secret"))
+
+	engine.Use(sessions.Sessions("gin-session", s.store))
+
+	// If you want periodic cleanup of expired sessions:
+	go s.store.PeriodicCleanup(1*time.Second, s.shutdownFinished)
+}
+
+func (s *Server) newGin() *gin.Engine {
 	engine := gin.New()
 	engine.Use(gin.Logger())
 	engine.Use(gin.Recovery())
-	// engine := gin.Default()
-	// engine.Use(cfg.APILogger)
 
-	f, _ := os.Create(s.cfg.LogFile)
-	gin.DefaultWriter = io.MultiWriter(f, os.Stdout)
+	// Set memory limit for multipart forms (default 32M)
+	engine.MaxMultipartMemory = 100 << 20 // 100MiB
+
+	if f, err := os.Create(s.cfg.LogFile); err == nil {
+		gin.DefaultWriter = io.MultiWriter(f, os.Stdout)
+	}
 
 	if s.cfg.Debug {
+		engine.Use(settings.APILogger)
 		engine.Use(middleware.RequestDebugLogger)
 	} else {
 		gin.SetMode(gin.ReleaseMode)
 	}
 
-	// Set a lower memory limit for multipart forms (default 32M)
-	engine.MaxMultipartMemory = 100 << 20 // 100MiB
-
-	// Init session
-	// store := cookie.NewStore([]byte("secret"))
-	// store, _ := redis.NewStore(10, "tcp", "localhost:6379", "", []byte("secret"))
-	store, _ := gormstore.NewStore(db.DB, gormstore.Options{
-		TableName:       "gin_sessions",
-		SkipCreateTable: false,
-	}, []byte("secret"))
-
-	// If you want periodic cleanup of expired sessions:
-	quit := make(chan struct{})
-	go store.PeriodicCleanup(1*time.Hour, quit)
-	engine.Use(sessions.Sessions("gin-session", store))
+	s.newSession(engine)
 
 	return engine
 }
@@ -72,5 +77,5 @@ func (s *Server) initDB() {
 }
 
 func (s *Server) registerRoutes() {
-	services.InitRouter(s.ginEngine)
+	services.InitRouter(s.gin)
 }

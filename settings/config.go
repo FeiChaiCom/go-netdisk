@@ -100,7 +100,6 @@ func (cfg *Cfg) setDefaultSettings() {
 }
 
 func (cfg *Cfg) LoadSettings() {
-
 	// dev/stag/prod.yaml
 	if RunMode = os.Getenv("BKPAAS_ENVIRONMENT"); RunMode == "" {
 		RunMode = "dev"
@@ -145,6 +144,5 @@ func GetCfg() *Cfg {
 }
 
 func NewCfg() *Cfg {
-	return &Cfg{
-	}
+	return &Cfg{}
 }

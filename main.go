@@ -18,15 +18,21 @@ func main() {
 	}
 
 	// Wait system interrupt signal before shutdown in 5s
-	go watchSystemSignals(context.Background(), s)
+	s.Wg.Add(1)
+	go func() {
+		defer s.Wg.Done()
+		watchSystemSignals(context.Background(), s)
+	}()
 
 	if err := s.Run(); err != nil {
-		log.Fatalf("run server: %s\n", err)
+		log.Fatalf("Server start error: %s\n", err)
 	}
 
+	s.Wg.Wait()
+	// log.Println("exit main")
 }
 
-func watchSystemSignals(ctx context.Context, s *server.Server) {
+func watchSystemSignals(rootCtx context.Context, s *server.Server) {
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 
@@ -35,13 +41,15 @@ func watchSystemSignals(ctx context.Context, s *server.Server) {
 		case sig := <-quit:
 			log.Printf("Server receive stop signal(%s):, will shutdown now\n", sig)
 			// Keep 5 seconds to finish the currently handling request
-			ctx, cancel := context.WithTimeout(ctx, 30*time.Second)
+			ctx, cancel := context.WithTimeout(rootCtx, 10*time.Second)
 			defer cancel()
 
 			if err := s.Shutdown(ctx, fmt.Sprintf("System signal: %s", sig)); err != nil {
-				log.Println("Timed out waiting for server to shut down")
+				log.Println("Server shutdown timed out, forced stop")
+				return
 			}
-			log.Println("Server graceful exited")
+
+			log.Printf("Server shutdown gracefully\n")
 			return
 		}
 	}

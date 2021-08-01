@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"go-netdisk/gin-contrib/sessions/gormstore"
 	"go-netdisk/settings"
 	"gorm.io/gorm"
 	"log"
@@ -14,7 +15,7 @@ import (
 	"time"
 )
 
-// Config contains parameters for the New function.
+// Config contain parameters for New func.
 type Config struct {
 	ConfigFile  string
 	HomePath    string
@@ -23,7 +24,7 @@ type Config struct {
 	BuildBranch string
 }
 
-// New returns a new instance of Server.
+// New return a new instance of Server.
 func New(cfg Config) (*Server, error) {
 	s := newServer(cfg)
 	if err := s.init(); err != nil {
@@ -33,13 +34,10 @@ func New(cfg Config) (*Server, error) {
 }
 
 func newServer(cfg Config) *Server {
-	rootCtx, cancel := context.WithCancel(context.Background())
-
 	return &Server{
-		context:          rootCtx,
-		shutdownFn:       cancel,
 		shutdownFinished: make(chan struct{}),
 		cfg:              settings.GetCfg(),
+		Wg:               &sync.WaitGroup{},
 
 		configFile:  cfg.ConfigFile,
 		homePath:    cfg.HomePath,
@@ -49,16 +47,17 @@ func newServer(cfg Config) *Server {
 	}
 }
 
-// Server is responsible for managing the lifecycle of services.
+// Server is responsible for manage httpserver.
 type Server struct {
-	context          context.Context
-	shutdownFn       context.CancelFunc
-	log              log.Logger
+	gin              *gin.Engine
+	srv              *http.Server
+	db               *gorm.DB
 	cfg              *settings.Cfg
-	shutdownOnce     sync.Once
+	store            gormstore.Store
 	shutdownFinished chan struct{}
 	isInitialized    bool
 	mtx              sync.Mutex
+	Wg               *sync.WaitGroup
 
 	configFile  string
 	homePath    string
@@ -66,14 +65,9 @@ type Server struct {
 	commit      string
 	buildBranch string
 	runMode     string
-
-	// HttpServer related
-	ginEngine *gin.Engine
-	httpSrv   *http.Server
-	db        *gorm.DB
 }
 
-// init initializes the server and its services.
+// init initializes the httpserver
 func (s *Server) init() error {
 	s.mtx.Lock()
 	defer s.mtx.Unlock()
@@ -87,93 +81,54 @@ func (s *Server) init() error {
 
 	s.initDB()
 
-	s.ginEngine = s.newGinEngine()
+	s.gin = s.newGin()
 	s.registerRoutes()
 	s.initServerDirs()
 
 	return nil
 }
 
-// Run initializes and starts services. This will block until all services have
-// exited. To initiate shutdown, call the Shutdown method in another goroutine.
+// Run initializes and start httpserver, block until httpserver exited.
 func (s *Server) Run() error {
-	defer close(s.shutdownFinished)
-
 	if err := s.init(); err != nil {
 		return err
 	}
 
 	// Stop gracefully
-	s.httpSrv = &http.Server{
-		Addr:           fmt.Sprintf(":%d", s.cfg.Port),
-		Handler:        s.ginEngine,
+	s.srv = &http.Server{
+		Addr:           fmt.Sprintf("localhost:%d", s.cfg.Port),
+		Handler:        s.gin,
 		ReadTimeout:    10 * time.Second,
 		WriteTimeout:   30 * time.Second,
 		MaxHeaderBytes: 1 << 20, // 1MB
 	}
 
 	// ListenAndServe
-	listener, err := net.Listen("tcp", s.httpSrv.Addr)
+	listener, err := net.Listen("tcp", s.srv.Addr)
 	if err != nil {
 		return err
 	}
 
-	log.Printf("HTTP Server Listen: %s", s.httpSrv.Addr)
-
-	var wg sync.WaitGroup
-	wg.Add(1)
-
-	// handle http shutdown on server context done
-	go func() {
-		defer wg.Done()
-
-		<-s.context.Done()
-		if err := s.httpSrv.Shutdown(context.Background()); err != nil {
-			log.Printf("Failed to shutdown server: %s", err)
-		}
-	}()
-
-
-	if err := s.httpSrv.Serve(listener); err != nil {
-		if errors.Is(err, http.ErrServerClosed) {
-			log.Println("server was shutdown gracefully")
-			return nil
-		}
+	log.Printf("Server listen at: %s", listener.Addr().String())
+	if err := s.srv.Serve(listener); err != nil && !errors.Is(err, http.ErrServerClosed) {
+		log.Printf("Server serve error: %s\n", err)
 		return err
 	}
-
-	log.Printf("before wait")
-	wg.Wait()
-
 	return nil
 }
 
-// Shutdown initiates graceful shutdown
-func (s *Server) Shutdown(ctx context.Context, reason string) (err error) {
-	s.shutdownOnce.Do(func() {
-		log.Printf("Shutdown started %s", reason)
-		// Call cancel func to stop server
-		s.shutdownFn()
-		// Wait for server to shut down
-		select {
-		case <-s.shutdownFinished:
-			s.log.Printf("Finished waiting for server to shut down")
-		case <-ctx.Done():
-			s.log.Printf("Timed out while waiting for server to shut down")
-			err = fmt.Errorf("timeout waiting for shutdown")
-		}
-	})
+func (s *Server) Shutdown(ctx context.Context, reason string) error {
+	defer close(s.shutdownFinished)
 
-	return
-}
-
-// ExitCode returns an exit code for a given error.
-func (s *Server) ExitCode(runError error) int {
-	if runError != nil {
-		log.Printf("Server shutdown %s", runError)
-		return 1
+	log.Printf("Shutdown started, reason: %s\n", reason)
+	if err := s.srv.Shutdown(ctx); err != nil {
+		log.Printf("Failed to shutdown server: %s\n", err)
+		return err
 	}
-	return 0
+
+	// s.shutdownFinished <- struct{}{}
+
+	return nil
 }
 
 // loadConfiguration loads settings and configuration from config files.
