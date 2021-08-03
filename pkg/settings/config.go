@@ -3,7 +3,7 @@ package settings
 import (
 	"fmt"
 	"github.com/spf13/viper"
-	"go-netdisk/pkg/utils"
+	"go-netdisk/pkg/utils/misc"
 	"log"
 	"os"
 )
@@ -132,7 +132,7 @@ func (cfg *Cfg) LoadSettings() {
 	}
 
 	// viper.Debug()
-	log.Println(utils.PrettyJson(ENV))
+	log.Println(misc.PrettyJson(ENV))
 }
 
 // GetCfg return the Cfg singleton

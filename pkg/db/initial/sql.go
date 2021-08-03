@@ -4,7 +4,7 @@ import (
 	"go-netdisk/pkg/db"
 	"go-netdisk/pkg/db/models"
 	"go-netdisk/pkg/settings"
-	"go-netdisk/pkg/utils"
+	"go-netdisk/pkg/utils/misc"
 	"log"
 )
 
@@ -22,13 +22,13 @@ func InitData() {
 	db.DB.Where(models.Permission{UserName: settings.ENV.SuperUser}).Attrs(models.Permission{
 		Role: models.ADMINISTRATOR,
 	}).FirstOrCreate(&perm)
-	log.Printf("GetOrCreate permission: %s\n", utils.PrettyJson(perm))
+	log.Printf("GetOrCreate permission: %s\n", misc.PrettyJson(perm))
 
 	prefer := &models.Preference{}
 	db.DB.Where(models.Preference{Name: "netdisk"}).Attrs(models.Preference{
 		AllowRegister: true,
 	}).FirstOrCreate(&prefer)
-	log.Printf("GetOrCreate preference: %s\n", utils.PrettyJson(prefer))
+	log.Printf("GetOrCreate preference: %s\n", misc.PrettyJson(prefer))
 
 	if db.DB.First(&models.Project{}).RowsAffected == 0 {
 		log.Printf("Create default project")

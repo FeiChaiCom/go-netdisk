@@ -3,6 +3,7 @@ package utils
 import (
 	"github.com/gin-gonic/gin"
 	"go-netdisk/pkg/settings"
+	"go-netdisk/pkg/utils/misc"
 
 	"log"
 	"net/http"
@@ -37,7 +38,7 @@ func JSONResponse(c *gin.Context, r *Response) {
 			c.FullPath(),
 		)
 
-		log.Println(PrettyJson(r))
+		log.Println(misc.PrettyJson(r))
 	}
 
 	c.JSON(http.StatusOK, r)
