@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
-	"go-netdisk/server"
+	"go-netdisk/pkg/server"
 	"log"
 	"os"
 	"os/signal"
