@@ -2,13 +2,13 @@ package matter
 
 import (
 	"github.com/gin-gonic/gin"
-	"go-netdisk/pkg/middleware"
+	"go-netdisk/pkg/middlewares"
 )
 
 // Add matter apis to api group
 func RegisterMatterGroup(rg *gin.RouterGroup) {
-	users := rg.Group("/matter/").Use(middleware.JWTLoginRequired())
-	// users := rg.Group("/matter/").Use(middleware.LoginRequired)
+	users := rg.Group("/matter/").Use(middlewares.JWTLoginRequired())
+	// users := rg.Group("/matter/").Use(middlewares.LoginRequired)
 	{
 		users.GET("page/", PageHandler)
 		users.GET("get_detail/", DetailHandler)

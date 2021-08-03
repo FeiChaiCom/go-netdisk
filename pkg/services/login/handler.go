@@ -8,7 +8,7 @@ import (
 	"go-netdisk/pkg/utils"
 
 	"go-netdisk/pkg/db"
-	"go-netdisk/pkg/middleware"
+	"go-netdisk/pkg/middlewares"
 	"net/http"
 	"time"
 )
@@ -49,9 +49,9 @@ func JwtLoginHandler(c *gin.Context) {
 	}
 
 	// Make token response with user claim
-	j := &middleware.JWT{SecretKey: []byte(settings.ENV.JWT.SecretKey)}
-	claims := middleware.MyClaims{
-		TokenUser: middleware.TokenUser{
+	j := &middlewares.JWT{SecretKey: []byte(settings.ENV.JWT.SecretKey)}
+	claims := middlewares.MyClaims{
+		TokenUser: middlewares.TokenUser{
 			UUID:     u.UUID.String(),
 			Username: u.Username,
 			Password: u.Password,

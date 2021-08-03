@@ -5,7 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"go-netdisk/pkg/db"
 	"go-netdisk/pkg/db/initial"
-	"go-netdisk/pkg/middleware"
+	"go-netdisk/pkg/middlewares"
 	"go-netdisk/pkg/services"
 	"go-netdisk/pkg/sessions/gormstore"
 	"go-netdisk/pkg/settings"
@@ -61,7 +61,7 @@ func (s *Server) newGin() *gin.Engine {
 
 	if s.cfg.Debug {
 		engine.Use(settings.APILogger)
-		engine.Use(middleware.RequestDebugLogger)
+		engine.Use(middlewares.RequestDebugLogger)
 	} else {
 		gin.SetMode(gin.ReleaseMode)
 	}

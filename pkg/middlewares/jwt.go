@@ -1,4 +1,4 @@
-package middleware
+package middlewares
 
 import (
 	"errors"
@@ -28,7 +28,7 @@ var (
 	ErrInvalidToken = errors.New("invalid token")
 )
 
-// Login middleware for user auth required apis
+// Login middlewares for user auth required apis
 func JWTLoginRequired() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// get token from header or cookie
