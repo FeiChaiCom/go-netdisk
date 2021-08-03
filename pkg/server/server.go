@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"go-netdisk/pkg/gin-contrib/sessions/gormstore"
+	"go-netdisk/pkg/sessions/gormstore"
 	"go-netdisk/pkg/settings"
 	"gorm.io/gorm"
 	"log"
