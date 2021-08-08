@@ -2,10 +2,12 @@ package settings
 
 import (
 	"fmt"
-	"github.com/spf13/viper"
 	"go-netdisk/pkg/utils/misc"
 	"log"
 	"os"
+
+	"github.com/spf13/viper"
+	"github.com/urfave/cli"
 )
 
 var (
@@ -23,11 +25,13 @@ const (
 )
 
 type Cfg struct {
+	Port       int    `mapstructure:"port"`
+	configFile string `mapstructure:"configfile"`
+	LogFile    string `mapstructure:"logfile"`
+
 	Debug       bool   `mapstructure:"debug"`
 	RunMode     string `mapstructure:"runmode"`
 	NeedMigrate bool   `mapstructure:"needmigrate"`
-	Port        int    `mapstructure:"port"`
-	LogFile     string `mapstructure:"logfile"`
 
 	Mysql MysqlConfig `mapstructure:"mysql"`
 	JWT   JwtConfig   `mapstructure:"jwt"`
@@ -109,7 +113,13 @@ func (cfg *Cfg) LoadSettings() {
 	log.Printf("load settings for <%s> ...\n", cfg.RunMode)
 
 	viper.AddConfigPath(".envs")
-	viper.SetConfigName(RunMode)
+
+	log.Printf("Overwrite port by command args: %s\n", misc.PrettyJson(cfg))
+	if cfg.configFile != "" {
+		viper.SetConfigName(cfg.configFile)
+	} else {
+		viper.SetConfigName(RunMode)
+	}
 	viper.SetConfigType("yaml")
 
 	// Auto get config from env
@@ -131,18 +141,23 @@ func (cfg *Cfg) LoadSettings() {
 		panic(err)
 	}
 
+	// Overwrite port by command args
+	log.Printf("Overwrite port by command args: %d\n", cfg.Port)
+	if cfg.Port != 0 {
+		ENV.Port = cfg.Port
+	}
+
 	// viper.Debug()
 	log.Println(misc.PrettyJson(ENV))
 }
 
 // GetCfg return the Cfg singleton
-func GetCfg() *Cfg {
+func GetCfg(c *cli.Context) *Cfg {
 	if ENV != nil {
 		return ENV
 	}
-	return NewCfg()
-}
-
-func NewCfg() *Cfg {
-	return &Cfg{}
+	return &Cfg{
+		configFile: c.String("config"),
+		Port:       c.Int("port"),
+	}
 }

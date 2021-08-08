@@ -4,24 +4,23 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"go-netdisk/pkg/sessions/gormstore"
 	"go-netdisk/pkg/settings"
-	"gorm.io/gorm"
 	"log"
 	"net"
 	"net/http"
-	"sync"
 	"time"
+
+	"github.com/gin-gonic/gin"
+	"github.com/urfave/cli"
+	"gorm.io/gorm"
 )
 
 // Config contain parameters for New func.
 type Config struct {
-	ConfigFile  string
-	HomePath    string
-	Version     string
-	Commit      string
-	BuildBranch string
+	CliContext *cli.Context
+	Version    string
+	Commit     string
 }
 
 // New return a new instance of Server.
@@ -36,48 +35,31 @@ func New(cfg Config) (*Server, error) {
 func newServer(cfg Config) *Server {
 	return &Server{
 		shutdownFinished: make(chan struct{}),
-		cfg:              settings.GetCfg(),
-		Wg:               &sync.WaitGroup{},
+		cfg:              settings.GetCfg(cfg.CliContext),
 
-		configFile:  cfg.ConfigFile,
-		homePath:    cfg.HomePath,
-		version:     cfg.Version,
-		commit:      cfg.Commit,
-		buildBranch: cfg.BuildBranch,
+		version: cfg.Version,
+		commit:  cfg.Commit,
 	}
 }
 
 // Server is responsible for manage httpserver.
 type Server struct {
-	gin              *gin.Engine
-	srv              *http.Server
-	db               *gorm.DB
-	cfg              *settings.Cfg
-	store            gormstore.Store
-	shutdownFinished chan struct{}
-	isInitialized    bool
-	mtx              sync.Mutex
-	Wg               *sync.WaitGroup
+	gin   *gin.Engine
+	srv   *http.Server
+	db    *gorm.DB
+	store gormstore.Store
 
-	configFile  string
-	homePath    string
-	version     string
-	commit      string
-	buildBranch string
-	runMode     string
+	shutdownFinished chan struct{}
+
+	cfg     *settings.Cfg
+	version string
+	commit  string
+	runMode string
 }
 
 // init initializes the httpserver
 func (s *Server) init() error {
-	s.mtx.Lock()
-	defer s.mtx.Unlock()
-
-	if s.isInitialized {
-		return nil
-	}
-	s.isInitialized = true
-
-	s.loadConfiguration()
+	s.loadConfig()
 
 	s.initDB()
 
@@ -131,7 +113,7 @@ func (s *Server) Shutdown(ctx context.Context, reason string) error {
 	return nil
 }
 
-// loadConfiguration loads settings and configuration from config files.
-func (s *Server) loadConfiguration() {
+// loadConfig loads settings and configuration from config files.
+func (s *Server) loadConfig() {
 	s.cfg.LoadSettings()
 }

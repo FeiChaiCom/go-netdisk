@@ -3,4 +3,5 @@ tmp/
 media/
 *.log
 /vendor/
+/build/
 /go-netdisk
