@@ -2,9 +2,10 @@ package settings
 
 import (
 	"fmt"
-	"go-netdisk/pkg/utils/misc"
 	"log"
 	"os"
+
+	"go-netdisk/pkg/utils/misc"
 
 	"github.com/spf13/viper"
 	"github.com/urfave/cli"
@@ -12,7 +13,7 @@ import (
 
 var (
 	RunMode = "dev"
-	ENV     = &Cfg{}
+	ENV     *Cfg
 )
 
 const (
@@ -25,9 +26,8 @@ const (
 )
 
 type Cfg struct {
-	Port       int    `mapstructure:"port"`
-	configFile string `mapstructure:"configfile"`
-	LogFile    string `mapstructure:"logfile"`
+	Port    int    `mapstructure:"port"`
+	LogFile string `mapstructure:"logfile"`
 
 	Debug       bool   `mapstructure:"debug"`
 	RunMode     string `mapstructure:"runmode"`
@@ -96,31 +96,31 @@ func (cfg *Cfg) bindEnvSettings() {
 	_ = viper.BindEnv("login.login-url", "BKAPP_LOGIN_URL")
 	_ = viper.BindEnv("login.user-info-url", "BKAPP_USER_INFO_URL")
 	_ = viper.BindEnv("login.uid", "BKAPP_UID")
-
 }
 
 func (cfg *Cfg) setDefaultSettings() {
 	viper.SetDefault("runmode", "dev")
 }
 
-func (cfg *Cfg) LoadSettings() {
+func (cfg *Cfg) LoadSettings(c *cli.Context) {
 	// dev/stag/prod.yaml
 	if RunMode = os.Getenv("BKPAAS_ENVIRONMENT"); RunMode == "" {
 		RunMode = "dev"
 		cfg.RunMode = "dev"
 	}
 
-	log.Printf("load settings for <%s> ...\n", cfg.RunMode)
-
-	viper.AddConfigPath(".envs")
-
-	log.Printf("Overwrite port by command args: %s\n", misc.PrettyJson(cfg))
-	if cfg.configFile != "" {
-		viper.SetConfigName(cfg.configFile)
+	configFile := c.String("config")
+	if configFile != "" {
+		log.Printf("load settings from <%s> ...\n", configFile)
+		configDir, fileName := misc.SplitDirFile(configFile)
+		viper.AddConfigPath(configDir)
+		viper.SetConfigName(misc.FileName(fileName))
 	} else {
+		log.Printf("load settings for <%s> ...\n", cfg.RunMode)
+		viper.AddConfigPath(".envs")
 		viper.SetConfigName(RunMode)
+		viper.SetConfigType("yaml")
 	}
-	viper.SetConfigType("yaml")
 
 	// Auto get config from env
 	viper.AutomaticEnv()
@@ -137,27 +137,25 @@ func (cfg *Cfg) LoadSettings() {
 	}
 
 	// Load settings from config file or env
-	if err := viper.Unmarshal(ENV); err != nil {
+	if err := viper.Unmarshal(cfg); err != nil {
 		panic(err)
 	}
 
 	// Overwrite port by command args
-	log.Printf("Overwrite port by command args: %d\n", cfg.Port)
-	if cfg.Port != 0 {
-		ENV.Port = cfg.Port
+	port := c.Int("port")
+	if port > 0 {
+		cfg.Port = port
 	}
 
 	// viper.Debug()
-	log.Println(misc.PrettyJson(ENV))
+	log.Println(misc.PrettyJson(cfg))
 }
 
 // GetCfg return the Cfg singleton
-func GetCfg(c *cli.Context) *Cfg {
+func GetCfg() *Cfg {
 	if ENV != nil {
 		return ENV
 	}
-	return &Cfg{
-		configFile: c.String("config"),
-		Port:       c.Int("port"),
-	}
+	ENV = &Cfg{}
+	return ENV
 }

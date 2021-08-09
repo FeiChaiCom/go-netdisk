@@ -21,7 +21,7 @@ var Web = cli.Command{
 	Description: `go-netdisk web server provide http service`,
 	Action:      runWeb,
 	Flags: []cli.Flag{
-		intFlag("port, p", 3000, "Temporary port number to prevent conflict"),
+		intFlag("port, p", 5000, "Temporary port number to prevent conflict"),
 		stringFlag("config, c", "", "Custom configuration file path"),
 	},
 }

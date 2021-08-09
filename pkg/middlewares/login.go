@@ -28,11 +28,9 @@ type UserFullInfoData struct {
 	PostName  string `json:"post_name"`
 }
 
-var LoginEnv = settings.ENV.Login
-
 func LoginRequired(c *gin.Context) {
 	session := sessions.Default(c)
-	ticket, err := c.Cookie(LoginEnv.Ticket)
+	ticket, err := c.Cookie(settings.ENV.Login.Ticket)
 
 	// Redirect user to login first
 	if err != nil {
@@ -40,7 +38,7 @@ func LoginRequired(c *gin.Context) {
 		if referer := c.Request.Header["Referer"]; len(referer) > 0 {
 			cURL = referer[0]
 		}
-		redirectURL := LoginEnv.LoginURL + "?c_url=" + cURL
+		redirectURL := settings.ENV.Login.LoginURL + "?c_url=" + cURL
 
 		// Redirect to pop up window
 		if c.Request.Header.Get("X-Requested-With") == "XMLHttpRequest" {
@@ -55,8 +53,8 @@ func LoginRequired(c *gin.Context) {
 	}
 
 	// Verify session and cookie, inject username to context
-	if ticket == session.Get(LoginEnv.Ticket) {
-		uid, _ := c.Cookie(LoginEnv.UID)
+	if ticket == session.Get(settings.ENV.Login.Ticket) {
+		uid, _ := c.Cookie(settings.ENV.Login.UID)
 		c.Set("username", uid)
 		c.Next()
 		return
@@ -64,8 +62,8 @@ func LoginRequired(c *gin.Context) {
 
 	// Verify cookie from remote login server
 	var userInfo UserInfo
-	_, _, errs := gorequest.New().Get(LoginEnv.UserInfoURL).Query(map[string]string{
-		LoginEnv.Ticket: ticket,
+	_, _, errs := gorequest.New().Get(settings.ENV.Login.UserInfoURL).Query(map[string]string{
+		settings.ENV.Login.Ticket: ticket,
 	}).EndStruct(&userInfo)
 	if errs != nil || userInfo.Ret != 0 {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"message": "server error, query user info failed"})
@@ -76,16 +74,16 @@ func LoginRequired(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"message": "server error, create user info failed"})
 		return
 	}
-	// log.Printf("url: %s?ticket=%s, userInfo: %#v\n", LoginEnv.UserInfoURL, ticket, userInfo)
+	// log.Printf("url: %s?ticket=%s, userInfo: %#v\n", settings.ENV.Login.UserInfoURL, ticket, userInfo)
 
 	// Login success from remote login server
-	uid, err := c.Cookie(LoginEnv.UID)
+	uid, err := c.Cookie(settings.ENV.Login.UID)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"message": "login required, user not found"})
 		return
 	}
-	session.Set(LoginEnv.Ticket, ticket)
-	session.Set(LoginEnv.UID, uid)
+	session.Set(settings.ENV.Login.Ticket, ticket)
+	session.Set(settings.ENV.Login.UID, uid)
 	session.Save()
 
 	c.Set("username", uid) // inject username to context

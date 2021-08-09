@@ -26,7 +26,7 @@ type Config struct {
 // New return a new instance of Server.
 func New(cfg Config) (*Server, error) {
 	s := newServer(cfg)
-	if err := s.init(); err != nil {
+	if err := s.init(cfg.CliContext); err != nil {
 		return nil, err
 	}
 	return s, nil
@@ -35,7 +35,7 @@ func New(cfg Config) (*Server, error) {
 func newServer(cfg Config) *Server {
 	return &Server{
 		shutdownFinished: make(chan struct{}),
-		cfg:              settings.GetCfg(cfg.CliContext),
+		cfg:              settings.GetCfg(),
 
 		version: cfg.Version,
 		commit:  cfg.Commit,
@@ -58,8 +58,8 @@ type Server struct {
 }
 
 // init initializes the httpserver
-func (s *Server) init() error {
-	s.loadConfig()
+func (s *Server) init(c *cli.Context) error {
+	s.loadConfig(c)
 
 	s.initDB()
 
@@ -72,13 +72,9 @@ func (s *Server) init() error {
 
 // Run initializes and start httpserver, block until httpserver exited.
 func (s *Server) Run() error {
-	if err := s.init(); err != nil {
-		return err
-	}
-
 	// Stop gracefully
 	s.srv = &http.Server{
-		Addr:           fmt.Sprintf("localhost:%d", s.cfg.Port),
+		Addr:           fmt.Sprintf(":%d", s.cfg.Port),
 		Handler:        s.gin,
 		ReadTimeout:    10 * time.Second,
 		WriteTimeout:   30 * time.Second,
@@ -114,6 +110,6 @@ func (s *Server) Shutdown(ctx context.Context, reason string) error {
 }
 
 // loadConfig loads settings and configuration from config files.
-func (s *Server) loadConfig() {
-	s.cfg.LoadSettings()
+func (s *Server) loadConfig(c *cli.Context) {
+	s.cfg.LoadSettings(c)
 }
