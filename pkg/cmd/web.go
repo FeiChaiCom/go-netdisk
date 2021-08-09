@@ -3,8 +3,6 @@ package cmd
 import (
 	"context"
 	"fmt"
-	"go-netdisk/pkg/server"
-	"go-netdisk/pkg/version"
 	"log"
 	"os"
 	"os/signal"
@@ -12,17 +10,20 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/urfave/cli"
+	"go-netdisk/pkg/server"
+	"go-netdisk/pkg/version"
+
+	"github.com/urfave/cli/v2"
 )
 
-var Web = cli.Command{
+var Web = &cli.Command{
 	Name:        "web",
 	Usage:       "Start web server",
 	Description: `go-netdisk web server provide http service`,
 	Action:      runWeb,
 	Flags: []cli.Flag{
-		intFlag("port, p", 5000, "Temporary port number to prevent conflict"),
-		stringFlag("config, c", "", "Custom configuration file path"),
+		intFlag("port", 5000, "Temporary port number to prevent conflict", []string{"p"}),
+		stringFlag("config", "", "Custom configuration file path", []string{"c"}),
 	},
 }
 

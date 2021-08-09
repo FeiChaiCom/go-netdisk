@@ -12,7 +12,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 	"gorm.io/gorm"
 )
 

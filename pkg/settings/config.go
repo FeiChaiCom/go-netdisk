@@ -8,7 +8,7 @@ import (
 	"go-netdisk/pkg/utils/misc"
 
 	"github.com/spf13/viper"
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 )
 
 var (

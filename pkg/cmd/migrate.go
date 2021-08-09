@@ -3,17 +3,17 @@ package cmd
 import (
 	"log"
 
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 )
 
-var Migrate = cli.Command{
+var Migrate = &cli.Command{
 	Name:        "migrate",
 	Usage:       "Migrate init database",
 	Description: `Backup create table and insert initial data.`,
 	Action:      runMigrate,
 	Flags: []cli.Flag{
-		stringFlag("config, c", "", "Custom configuration file path"),
-		boolFlag("verbose, v", "Show process details"),
+		stringFlag("config, c", "", "Custom configuration file path", []string{"c"}),
+		boolFlag("verbose, v", "Show process details", []string{"v"}),
 	},
 }
 
