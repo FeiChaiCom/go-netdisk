@@ -18,7 +18,7 @@ func main() {
 	app.Version = version.Version
 	app.Commands = []cli.Command{
 		cmd.Web,
-		// cmd.Backup,
+		cmd.Migrate,
 	}
 	if err := app.Run(os.Args); err != nil {
 		log.Fatalf("Failed to start application: %v", err)
