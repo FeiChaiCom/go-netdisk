@@ -10,6 +10,7 @@ import (
 
 func InitData() {
 	if settings.ENV.NeedMigrate {
+		log.Printf("Start migrate database\n")
 		_ = db.DB.AutoMigrate(&models.Project{}, &models.User{}, &models.Permission{}, &models.Matter{}, models.Preference{})
 	}
 

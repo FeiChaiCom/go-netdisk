@@ -4,7 +4,6 @@ import (
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"go-netdisk/pkg/db"
-	"go-netdisk/pkg/db/initial"
 	"go-netdisk/pkg/middlewares"
 	"go-netdisk/pkg/services"
 	"go-netdisk/pkg/sessions/gormstore"
@@ -73,7 +72,7 @@ func (s *Server) newGin() *gin.Engine {
 
 func (s *Server) initDB() {
 	s.db, _ = db.InitDB()
-	initial.InitData()
+	// initial.InitData()
 }
 
 func (s *Server) registerRoutes() {
