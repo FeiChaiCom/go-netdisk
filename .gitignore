@@ -2,3 +2,7 @@ tmp/
 .idea/
 media/
 *.log
+/vendor/
+/build/
+/go-netdisk
+server

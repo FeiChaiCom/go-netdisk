@@ -4,3 +4,4 @@ media
 static
 templates
 *.sql
+build
